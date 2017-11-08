@@ -14,10 +14,9 @@
           @focus="focus(item)"
           @keyup.up="moveItemUp(true, item)"
           @keyup.down="moveItemUp(false, item)"
-          @keyup.enter="addNewItem"
+          @keyup.enter="handleEnter"
           @keyup.delete.prevent="removeItem(item)"
           @keydown.tab.prevent="toggleDoneItem"
-          @keyup.shift.enter.exact.prevent="addItemNote(item)"
         >
       </div>
     </template>
@@ -54,6 +53,13 @@ export default {
   methods: {
     focus: function (item) {
       this.currentItem = item
+    },
+    handleEnter: function () {
+      if (event.shiftKey) {
+        this.addItemNote()
+      } else {
+        this.addNewItem()
+      }
     },
     addNewItem: function () {
       // Message
