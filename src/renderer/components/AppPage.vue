@@ -3,19 +3,20 @@
     <nav-bar></nav-bar>
     <main>
       <day-list>
-        <day-item 
-          v-for="day in currentWeek" 
+        <day-item
+          v-for="day in currentWeek"
           :day="day"
           :key="day.number"
           @addItem="addItemToDay"
           @removeItem="removeItem"
+          @updateItemText="updateItemText"
           @toggleDone="doneItem"
         ></day-item>
       </day-list>
     </main>
     <!-- Setting -->
     <!-- Setting Button -->
-    <button 
+    <button
       class="button button-setting position-fixed bottom-right"
       @click="isSettingOpened = true"
     >O</button>
@@ -64,13 +65,17 @@ export default {
       },
       moveNextWeek: function () {},
       movePrevWeek: function () {},
-      addItemToDay: function (day) {
+      addItemToDay: function (day, itemIndex = -1, text = '') {
         const targetIndex = this.findItemByProperty(this.currentWeek, day, 'id')
-        const newItem = { id: Math.floor(Math.random() * 99999), text: '', isDone: false }
+        const newItem = { id: Math.floor(Math.random() * 99999), text: text, isDone: false }
         if (targetIndex === -1) {
           return
         }
-        this.currentWeek[targetIndex].items.push(newItem)
+        if (itemIndex === -1) {
+          this.currentWeek[targetIndex].items.push(newItem)
+        } else {
+          this.currentWeek[targetIndex].items.splice(itemIndex + 1, 0, newItem)
+        }
       },
       removeItem: function (day, item) {
         const dayIndex = this.findItemByProperty(this.currentWeek, day, 'id')
@@ -80,11 +85,18 @@ export default {
         }
         this.currentWeek[dayIndex].items.splice(itemIndex, 1)
       },
+      updateItemText: function (day, item, text = '') {
+        const dayIndex = this.findItemByProperty(this.currentWeek, day, 'id')
+        const itemIndex = this.findItemByProperty(this.currentWeek[dayIndex].items, item, 'id')
+        if (dayIndex === -1 || itemIndex === -1) {
+          return
+        }
+        this.currentWeek[dayIndex].items[itemIndex].text = text
+      },
       doneItem: function () {
         console.log('done :)')
       },
       findItemByProperty: function (collection, item, property) {
-        console.log(collection, item)
         var targetIndex = -1
         for (var index = 0; index < collection.length; index++) {
           if (collection[index][property] === item[property]) {

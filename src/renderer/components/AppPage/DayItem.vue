@@ -11,7 +11,8 @@
           autofocus
           v-model="item.text"
           ref="input"
-          @keyup.enter="addNewItem" 
+          @focus="focus(item)"
+          @keyup.enter="addNewItem"
           @keyup.delete.prevent="removeItem(item)"
           @keydown.tab.prevent="toggleDoneItem"
           @keyup.shift.enter.prevent="addItemNote(item)"
@@ -29,6 +30,11 @@ export default {
       require: true
     }
   },
+  data: function () {
+    return {
+      currentItem: null
+    }
+  },
   computed: {
     items: function () {
       return this.day.items
@@ -41,10 +47,32 @@ export default {
     }
   },
   methods: {
+    focus: function (item) {
+      this.currentItem = item
+    },
     addNewItem: function () {
+      // Message
+      let tailText = ''
+      let itemIndex = -1
+      if (this.currentItem !== null) {
+        const caretPosition = this.getCaretPosition()
+        const textLength = this.currentItem.text.length
+        let remainText = this.currentItem.text
+        if (caretPosition !== textLength) {
+          remainText = this.currentItem.text.slice(0, caretPosition)
+          tailText = this.currentItem.text.slice(caretPosition, textLength)
+        }
+        itemIndex = this.items.findIndex((item) => {
+          return item.id === this.currentItem.id
+        })
+        if (itemIndex !== -1) {
+          this.$emit('updateItemText', this.day, this.currentItem, remainText)
+        }
+      }
+
       const day = Object.assign({}, this.day)
+      this.$emit('addItem', day, itemIndex, tailText)
       document.activeElement.blur()
-      this.$emit('addItem', day)
       this.$nextTick(() => {
         const index = this.items.length - 1
         const input = this.$refs.input[index]
