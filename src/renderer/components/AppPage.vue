@@ -8,6 +8,7 @@
           :day="day"
           :key="day.number"
           @addItem="addItemToDay"
+          @removeItem="removeItem"
           @toggleDone="doneItem"
         ></day-item>
       </day-list>
@@ -66,15 +67,27 @@ export default {
       addItemToDay: function (day) {
         const targetIndex = this.findItemByProperty(this.currentWeek, day, 'id')
         const newItem = { id: Math.floor(Math.random() * 99999), text: '', isDone: false }
+        if (targetIndex === -1) {
+          return
+        }
         this.currentWeek[targetIndex].items.push(newItem)
+      },
+      removeItem: function (day, item) {
+        const dayIndex = this.findItemByProperty(this.currentWeek, day, 'id')
+        const itemIndex = this.findItemByProperty(this.currentWeek[dayIndex].items, item, 'id')
+        if (dayIndex === -1 || itemIndex === -1) {
+          return
+        }
+        this.currentWeek[dayIndex].items.splice(itemIndex, 1)
       },
       doneItem: function () {
         console.log('done :)')
       },
       findItemByProperty: function (collection, item, property) {
+        console.log(collection, item)
         var targetIndex = -1
         for (var index = 0; index < collection.length; index++) {
-          if (this.currentWeek[index][property] === item[property]) {
+          if (collection[index][property] === item[property]) {
             targetIndex = index
             break
           }

@@ -2,15 +2,19 @@
   <li class="day-list-item">
     <h2 class="day-item-title" @click="addNewItem">{{day.text}}요일 - {{day.number}}일</h2>
     <!-- Empty State -->
-    <input type="text" @click="addNewItem" v-if="itemsNotExists">
+    <input type="text" @focus="addNewItem" @click="addNewItem" v-if="itemsNotExists">
     <!--  -->
     <template v-if="itemsExists">
       <div v-for="item in items" :key="item.id">
         <input type="checkbox">
         <input type="text"
-          v-model="item.text" 
+          autofocus
+          v-model="item.text"
+          ref="input"
           @keyup.enter="addNewItem" 
+          @keyup.delete.prevent="removeItem(item)"
           @keydown.tab.prevent="toggleDoneItem"
+          @keyup.shift.enter.prevent="addItemNote(item)"
         >
       </div>
     </template>
@@ -39,11 +43,28 @@ export default {
   methods: {
     addNewItem: function () {
       const day = Object.assign({}, this.day)
+      document.activeElement.blur()
       this.$emit('addItem', day)
+      this.$nextTick(() => {
+        const index = this.items.length - 1
+        const input = this.$refs.input[index]
+        input.focus()
+      })
+    },
+    removeItem: function (item) {
+      const el = document.activeElement
+      const val = el.value
+      const caretPosition = val.slice(0, el.selectionStart).length
+      if (caretPosition === 0) {
+        this.$emit('removeItem', this.day, item)
+      }
     },
     toggleDoneItem: function () {
       const day = Object.assign({}, this.day)
       this.$emit('toggleDone', day)
+    },
+    addItemNote: function (item) {
+      console.log('addItemNote')
     }
   }
 }
