@@ -6,7 +6,8 @@
     <!--  -->
     <template v-if="itemsExists">
       <div v-for="item in items" :key="item.id">
-        <input type="checkbox">
+        <span v-if="item.isDone" :key="`item-${item.id}-done`">DONE</span>
+        <span v-else :key="`item-${item.id}-notdone`">NOT DONE</span>
         <input type="text"
           autofocus
           v-model="item.text"
@@ -17,7 +18,7 @@
           @keyup.down="moveItemUp(false, item)"
           @keyup.enter="handleEnter"
           @keyup.delete.prevent="removeItem(item)"
-          @keydown.tab.prevent="toggleDoneItem"
+          @keydown.tab.prevent="toggleDoneItem(item)"
         >
       </div>
     </template>
@@ -96,9 +97,9 @@ export default {
         this.$emit('removeItem', this.day, item)
       }
     },
-    toggleDoneItem: function () {
+    toggleDoneItem: function (item) {
       const day = Object.assign({}, this.day)
-      this.$emit('toggleDone', day)
+      this.$emit('toggleDone', day, item)
     },
     addItemNote: function (item) {
       console.log('addItemNote')

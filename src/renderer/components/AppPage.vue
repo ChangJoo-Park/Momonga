@@ -93,8 +93,13 @@ export default {
         }
         this.currentWeek[dayIndex].items[itemIndex].text = text
       },
-      doneItem: function () {
-        console.log('done :)')
+      doneItem: function (day, item) {
+        const dayIndex = this.findItemByProperty(this.currentWeek, day, 'id')
+        const itemIndex = this.findItemByProperty(this.currentWeek[dayIndex].items, item, 'id')
+        if (dayIndex === -1 || itemIndex === -1) {
+          return
+        }
+        this.currentWeek[dayIndex].items[itemIndex].isDone = !this.currentWeek[dayIndex].items[itemIndex].isDone
       },
       findItemByProperty: function (collection, item, property) {
         var targetIndex = -1
