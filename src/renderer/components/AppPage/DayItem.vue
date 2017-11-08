@@ -10,7 +10,8 @@
         <input type="text"
           autofocus
           v-model="item.text"
-          ref="input"
+          :ref="`input-${item.id}`"
+          :key="item.id"
           @focus="focus(item)"
           @keyup.up="moveItemUp(true, item)"
           @keyup.down="moveItemUp(false, item)"
@@ -81,10 +82,12 @@ export default {
 
       const day = Object.assign({}, this.day)
       this.$emit('addItem', day, itemIndex, tailText)
+
       document.activeElement.blur()
+
       this.$nextTick(() => {
-        const index = this.items.length - 1
-        const input = this.$refs.input[index]
+        const id = `input-${this.items[itemIndex + 1].id}`
+        const input = this.$refs[id][0]
         input.focus()
       })
     },
@@ -112,7 +115,9 @@ export default {
       }
 
       const nextIndex = isUp ? currentIndex - 1 : currentIndex + 1
-      const input = this.$refs.input[nextIndex]
+      const nextItem = this.items[nextIndex]
+      const nextRef = `input-${nextItem.id}`
+      const input = this.$refs[nextRef][0]
       input.focus()
     },
     getItemIndex: function (targetItem) {
