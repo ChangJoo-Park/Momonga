@@ -52,10 +52,7 @@ export default {
       })
     },
     removeItem: function (item) {
-      const el = document.activeElement
-      const val = el.value
-      const caretPosition = val.slice(0, el.selectionStart).length
-      if (caretPosition === 0) {
+      if (this.getCaretPosition() === 0) {
         this.$emit('removeItem', this.day, item)
       }
     },
@@ -65,6 +62,11 @@ export default {
     },
     addItemNote: function (item) {
       console.log('addItemNote')
+    },
+    getCaretPosition: function () {
+      const el = document.activeElement
+      const val = el.value
+      return val.slice(0, el.selectionStart).length
     }
   }
 }
