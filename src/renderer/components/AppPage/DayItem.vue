@@ -12,10 +12,12 @@
           v-model="item.text"
           ref="input"
           @focus="focus(item)"
+          @keyup.up="moveItemUp(true, item)"
+          @keyup.down="moveItemUp(false, item)"
           @keyup.enter="addNewItem"
           @keyup.delete.prevent="removeItem(item)"
           @keydown.tab.prevent="toggleDoneItem"
-          @keyup.shift.enter.prevent="addItemNote(item)"
+          @keyup.shift.enter.exact.prevent="addItemNote(item)"
         >
       </div>
     </template>
@@ -38,6 +40,9 @@ export default {
   computed: {
     items: function () {
       return this.day.items
+    },
+    itemCount: function () {
+      return this.items.length
     },
     itemsExists: function () {
       return this.items.length > 0
@@ -62,9 +67,7 @@ export default {
           remainText = this.currentItem.text.slice(0, caretPosition)
           tailText = this.currentItem.text.slice(caretPosition, textLength)
         }
-        itemIndex = this.items.findIndex((item) => {
-          return item.id === this.currentItem.id
-        })
+        itemIndex = this.getItemIndex(this.currentItem)
         if (itemIndex !== -1) {
           this.$emit('updateItemText', this.day, this.currentItem, remainText)
         }
@@ -90,6 +93,26 @@ export default {
     },
     addItemNote: function (item) {
       console.log('addItemNote')
+    },
+    moveItemUp: function (isUp, item) {
+      const currentIndex = this.getItemIndex(item)
+      const isFirst = (isUp && currentIndex === 0)
+      const isLast = (!isUp && currentIndex === this.itemCount - 1)
+      const isFirstOrLast = isFirst || isLast
+
+      if (isFirstOrLast) {
+        console.log('처음 혹은 마지막')
+        return
+      }
+
+      const nextIndex = isUp ? currentIndex - 1 : currentIndex + 1
+      const input = this.$refs.input[nextIndex]
+      input.focus()
+    },
+    getItemIndex: function (targetItem) {
+      return this.items.findIndex(item => {
+        return item.id === targetItem.id
+      })
     },
     getCaretPosition: function () {
       const el = document.activeElement
