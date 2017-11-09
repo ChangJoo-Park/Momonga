@@ -1,10 +1,15 @@
 <template>
   <div id="wrapper">
-    <nav-bar></nav-bar>
+    <nav-bar
+      :currentWeek="currentWeek"
+      @goLastWeek="moveLastWeek"
+      @goNextWeek="moveNextWeek"
+    ></nav-bar>
+    {{currentWeek}}
     <main>
       <day-list>
         <day-item
-          v-for="day in currentWeek"
+          v-for="day in currentWeekDays"
           :day="day"
           :key="day.number"
           @addItem="addItemToDay"
@@ -43,16 +48,19 @@ export default {
       DayItem
     },
     created: function () {
-      this.currentWeek = this.getCurrentWeek()
+      const date = new this.$S.Date()
+      this.setCurrentWeek(date)
+      this.currentWeekDays = this.getCurrentWeekDays()
     },
     data: function () {
       return {
         isSettingOpened: false,
-        currentWeek: ''
+        currentWeek: null,
+        currentWeekDays: null
       }
     },
     methods: {
-      getCurrentWeek: function () {
+      getCurrentWeekDays: function () {
         return [
           { id: 1, text: '일', number: 6, items: [] },
           { id: 2, text: '월', number: 7, items: [] },
@@ -63,43 +71,64 @@ export default {
           { id: 7, text: '토', number: 12, items: [] }
         ]
       },
-      moveNextWeek: function () {},
-      movePrevWeek: function () {},
+      moveLastWeek: function () {
+        console.log('move last week current week => ', this.currentWeek)
+        const date = new this.$S.Date(this.currentWeek.today.raw).get('last week')
+        this.setCurrentWeek(date)
+      },
+      moveNextWeek: function () {
+        console.log('move next week')
+        const date = new this.$S.Date(this.currentWeek.today.raw).get('next week')
+        this.setCurrentWeek(date)
+      },
+      setCurrentWeek: function (date) {
+        const beginDay = date.get('sunday').raw
+        const endDay = date.get('saturday').raw
+        console.log(beginDay)
+        console.log(endDay)
+        console.log(date.getISOWeek())
+        this.currentWeek = {
+          today: date,
+          begin: beginDay,
+          end: endDay,
+          weekNumber: date.getISOWeek().raw
+        }
+      },
       addItemToDay: function (day, itemIndex = -1, text = '') {
-        const targetIndex = this.findItemByProperty(this.currentWeek, day, 'id')
+        const targetIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
         const newItem = { id: Math.floor(Math.random() * 99999), text: text, isDone: false }
         if (targetIndex === -1) {
           return
         }
         if (itemIndex === -1) {
-          this.currentWeek[targetIndex].items.push(newItem)
+          this.currentWeekDays[targetIndex].items.push(newItem)
         } else {
-          this.currentWeek[targetIndex].items.splice(itemIndex + 1, 0, newItem)
+          this.currentWeekDays[targetIndex].items.splice(itemIndex + 1, 0, newItem)
         }
       },
       removeItem: function (day, item) {
-        const dayIndex = this.findItemByProperty(this.currentWeek, day, 'id')
-        const itemIndex = this.findItemByProperty(this.currentWeek[dayIndex].items, item, 'id')
+        const dayIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
+        const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, 'id')
         if (dayIndex === -1 || itemIndex === -1) {
           return
         }
-        this.currentWeek[dayIndex].items.splice(itemIndex, 1)
+        this.currentWeekDays[dayIndex].items.splice(itemIndex, 1)
       },
       updateItemText: function (day, item, text = '') {
-        const dayIndex = this.findItemByProperty(this.currentWeek, day, 'id')
-        const itemIndex = this.findItemByProperty(this.currentWeek[dayIndex].items, item, 'id')
+        const dayIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
+        const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, 'id')
         if (dayIndex === -1 || itemIndex === -1) {
           return
         }
-        this.currentWeek[dayIndex].items[itemIndex].text = text
+        this.currentWeekDays[dayIndex].items[itemIndex].text = text
       },
       doneItem: function (day, item) {
-        const dayIndex = this.findItemByProperty(this.currentWeek, day, 'id')
-        const itemIndex = this.findItemByProperty(this.currentWeek[dayIndex].items, item, 'id')
+        const dayIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
+        const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, 'id')
         if (dayIndex === -1 || itemIndex === -1) {
           return
         }
-        this.currentWeek[dayIndex].items[itemIndex].isDone = !this.currentWeek[dayIndex].items[itemIndex].isDone
+        this.currentWeekDays[dayIndex].items[itemIndex].isDone = !this.currentWeekDays[dayIndex].items[itemIndex].isDone
       },
       findItemByProperty: function (collection, item, property) {
         var targetIndex = -1
