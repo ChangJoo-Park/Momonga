@@ -14,8 +14,8 @@
         </div>
         <textarea type="text"
           class="day-item-input"
-          rows=1
           autofocus
+          rows="1"
           v-model="item.text"
           :ref="`input-${item.id}`"
           :key="item.id"
@@ -59,16 +59,32 @@ export default {
     },
     lastItem: function () {
       return this.items[this.itemCount - 1]
+    },
+    currentItemTextLength: function () {
+      return this.currentItem.text.length
+    },
+    currentItemIndex: function () {
+      return this.day.items.findIndex(i => this.currentItem.id === i.id)
     }
   },
   methods: {
+    // 전달받은 item에 포커스가 되도록 한다.
     focusItem: function (item) {
+      if (item === undefined) {
+        return
+      }
+      document.activeElement.blur()
       this.$nextTick(_ => {
         const id = `input-${item.id}`
         const input = this.$refs[id][0]
         input.focus()
       })
     },
+    /**
+     * 엔터키 처리
+     * 엔터키만 입력한 경우 : 새 아이템을 추가
+     * 쉬프트와 함께 입력한 경우 : 아이템의 노트 추가
+     */
     handleEnter: function () {
       if (event.shiftKey) {
         this.addItemNote()
@@ -76,80 +92,102 @@ export default {
         this.addNewItem()
       }
     },
+    /**
+     * 날짜 / 빈칸을 눌러서 만드는 경우에는 아무 내용 없이 아이템을 만들어야함
+     */
     addNewItemWithEmpty: function () {
       this.$emit('addItem', this.day, -1, '')
       this.focusItem(this.lastItem)
     },
+    /**
+     * 아이템이 선택된 경우만 작동함
+     */
     addNewItem: function () {
       // Message
+      const caretPosition = this.getCaretPosition()
+      const isCaretPositionMiddle = caretPosition !== this.currentItemTextLength
+
       let tailText = ''
-      let itemIndex = -1
-      if (this.currentItem !== null) {
-        const caretPosition = this.getCaretPosition()
-        const textLength = this.currentItem.text.length
-        let remainText = this.currentItem.text
-        if (caretPosition !== textLength) {
-          remainText = this.currentItem.text.slice(0, caretPosition)
-          tailText = this.currentItem.text.slice(caretPosition, textLength)
-        }
-        itemIndex = this.getItemIndex(this.currentItem)
-        if (itemIndex !== -1) {
-          this.$emit('updateItemText', this.day, this.currentItem, remainText)
-        }
+      let remainText = this.currentItem.text
+
+      if (isCaretPositionMiddle) {
+        remainText = this.currentItem.text.slice(0, caretPosition)
+        tailText = this.currentItem.text.slice(caretPosition, this.currentItemTextLength)
       }
 
-      const day = Object.assign({}, this.day)
-      this.$emit('addItem', day, itemIndex, tailText)
+      this.$emit('updateItemText', this.day, this.currentItem, remainText)
 
-      document.activeElement.blur()
-      this.focusItem(this.items[itemIndex + 1])
+      const day = Object.assign({}, this.day)
+      this.$emit('addItem', day, this.currentItemIndex, tailText)
+
+      this.focusItem(this.items[this.currentItemIndex + 1])
     },
-    removeItem: function (item) {
+    /**
+     * 삭제 후 어떤 아이템이 선택되어야하는지 결정
+     * 첫번째 아이템이고 두개 이상인 경우 0번 인덱스가 다음 포커스 아이템
+     * 중간 아이템인 경우 현재 아이템에서 하나 뺀 인덱스
+     * 마지막인 경우 맨 마지막을 선택
+     */
+    findNextItemIndex: function (item) {
       const itemIndex = this.items.findIndex(i => i.id === item.id)
-      console.log(itemIndex)
+      const isFirstItemAndMoreThanOne = itemIndex === 0 && this.itemCount !== 0
+      const isMiddleItemAndMoreThanEqualOne = (itemIndex === this.itemCount - 1) && (this.itemCount - 1 >= 1)
       let nextIndex = -1
-      if (itemIndex === 0 && this.items.length !== 0) {
+
+      if (isFirstItemAndMoreThanOne) {
         nextIndex = 0
-      } else if ((itemIndex === this.items.length - 1) && (this.items.length - 1 >= 1)) {
-        nextIndex = this.items.length - 2
+      } else if (isMiddleItemAndMoreThanEqualOne) {
+        nextIndex = this.itemCount - 2
       } else {
         nextIndex = itemIndex - 1
       }
-      console.log('nextIndex = ', nextIndex)
-      if (this.getCaretPosition() === 0 && item.text.length === 0) {
+      return nextIndex
+    },
+    /**
+     * 캐럿 포지션이 0이고 텍스트가 0개일때 아이템을 삭제한다
+     */
+    removeItem: function (item) {
+      const nextIndex = this.findNextItemIndex(item)
+
+      const isCaretPositionZeroAndEmptyText = this.getCaretPosition() === 0 && item.text.length === 0
+      if (isCaretPositionZeroAndEmptyText) {
         this.$emit('removeItem', this.day, item)
         this.focusItem(this.items[nextIndex])
       }
     },
+    /**
+     * 전달받은 아이템의 완료 상태를 토글
+     */
     toggleDoneItem: function (item) {
       const day = Object.assign({}, this.day)
       this.$emit('toggleDone', day, item)
     },
+    /**
+     * 아이템에 노트를 추가함 (최대 1개)
+     */
     addItemNote: function (item) {
       console.log('addItemNote')
     },
+    /**
+     * 아이템의 다음 포커스 상태를 선택한다
+     */
     moveItemUp: function (isUp, item) {
-      const currentIndex = this.getItemIndex(item)
-      const isFirst = (isUp && currentIndex === 0)
-      const isLast = (!isUp && currentIndex === this.itemCount - 1)
+      const isFirst = (isUp && this.currentItemIndex === 0)
+      const isLast = (!isUp && this.currentItemIndex === this.itemCount - 1)
       const isFirstOrLast = isFirst || isLast
 
       if (isFirstOrLast) {
-        console.log('처음 혹은 마지막')
+        console.log('처음 혹은 마지막은 다음 날짜로 이동한다')
         return
       }
 
-      const nextIndex = isUp ? currentIndex - 1 : currentIndex + 1
+      const nextIndex = isUp ? this.currentItemIndex - 1 : this.currentItemIndex + 1
       const nextItem = this.items[nextIndex]
-      const nextRef = `input-${nextItem.id}`
-      const input = this.$refs[nextRef][0]
-      input.focus()
+      this.focusItem(nextItem)
     },
-    getItemIndex: function (targetItem) {
-      return this.items.findIndex(item => {
-        return item.id === targetItem.id
-      })
-    },
+    /**
+     * 현재 선택된 엘리먼트의 캐럿 위치를 찾는다.
+     */
     getCaretPosition: function () {
       const el = document.activeElement
       if (el.nodeName === 'BODY') {
@@ -195,7 +233,13 @@ export default {
   display: flex;
 }
 .day-item-input {
+  font-size: 20px;
+  min-height: 20px;
+  line-height: 20px;
   width: 100%;
   margin: 5px;
+  border: none;
+  outline: none;
+  resize: none;
 }
 </style>
