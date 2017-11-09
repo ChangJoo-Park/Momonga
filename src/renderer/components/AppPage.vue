@@ -5,7 +5,6 @@
       @goLastWeek="moveLastWeek"
       @goNextWeek="moveNextWeek"
     ></nav-bar>
-    {{currentWeek}}
     <main>
       <day-list>
         <day-item
@@ -61,15 +60,20 @@ export default {
     },
     methods: {
       getCurrentWeekDays: function () {
-        return [
-          { id: 1, text: '일', number: 6, items: [] },
-          { id: 2, text: '월', number: 7, items: [] },
-          { id: 3, text: '화', number: 8, items: [] },
-          { id: 4, text: '수', number: 9, items: [] },
-          { id: 5, text: '목', number: 10, items: [] },
-          { id: 6, text: '금', number: 11, items: [] },
-          { id: 7, text: '토', number: 12, items: [] }
-        ]
+        const begin = JSON.parse(JSON.stringify(this.currentWeek.begin))
+        const startDay = new this.$S.Date(begin)
+        const weekDays = []
+        for (let index = 0; index < 7; index++) {
+          const id = Math.floor(Math.random() * 99999)
+          weekDays.push({
+            id: id,
+            text: startDay.format('{Weekday}').raw,
+            number: startDay.format('{d}').raw,
+            items: []
+          })
+          startDay.addDays(1)
+        }
+        return weekDays
       },
       moveLastWeek: function () {
         console.log('move last week current week => ', this.currentWeek)
@@ -84,15 +88,13 @@ export default {
       setCurrentWeek: function (date) {
         const beginDay = date.get('sunday').raw
         const endDay = date.get('saturday').raw
-        console.log(beginDay)
-        console.log(endDay)
-        console.log(date.getISOWeek())
         this.currentWeek = {
           today: date,
           begin: beginDay,
           end: endDay,
           weekNumber: date.getISOWeek().raw
         }
+        this.currentWeekDays = this.getCurrentWeekDays()
       },
       addItemToDay: function (day, itemIndex = -1, text = '') {
         const targetIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')

@@ -1,7 +1,7 @@
 <template>
   <li class="day-list-item">
     <div>
-      <h2 class="day-item-title" @click="addNewItemWithEmpty">{{day.text}}요일 - {{day.number}}일</h2>
+      <h2 class="day-item-title" @click="addNewItemWithEmpty">{{day.text}} - {{day.number}}</h2>
     </div>
     <!-- Empty State -->
     <input class="dummy-text-input" type="text" @focus="addNewItemWithEmpty" @click="addNewItem" v-if="itemsNotExists">
