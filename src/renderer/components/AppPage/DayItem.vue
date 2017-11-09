@@ -1,14 +1,19 @@
 <template>
   <li class="day-list-item">
-    <h2 class="day-item-title" @click="addNewItem">{{day.text}}요일 - {{day.number}}일</h2>
+    <div>
+      <h2 class="day-item-title" @click="addNewItem">{{day.text}}요일 - {{day.number}}일</h2>
+    </div>
     <!-- Empty State -->
     <input type="text" @focus="addNewItem" @click="addNewItem" v-if="itemsNotExists">
     <!--  -->
     <template v-if="itemsExists">
-      <div v-for="item in items" :key="item.id">
-        <span v-if="item.isDone" :key="`item-${item.id}-done`">DONE</span>
-        <span v-else :key="`item-${item.id}-notdone`">NOT DONE</span>
+      <div v-for="item in items" :key="item.id" :class=" { 'done': item.isDone }">
+        <div class="day-item-checkbox" @click="toggleDoneItem(item)">
+          <span v-if="item.isDone" :key="`item-${item.id}-done`">	&#9679;</span>
+          <span v-else :key="`item-${item.id}-notdone`">&#9675;</span>
+        </div>
         <input type="text"
+          class="day-item-input"
           autofocus
           v-model="item.text"
           :ref="`input-${item.id}`"
@@ -93,7 +98,7 @@ export default {
       })
     },
     removeItem: function (item) {
-      if (this.getCaretPosition() === 0) {
+      if (this.getCaretPosition() === 0 && item.text.length === 0) {
         this.$emit('removeItem', this.day, item)
       }
     },
@@ -137,15 +142,28 @@ export default {
 
 <style>
 /* Day List */
+.day-item-title {
+  display: inline-block;
+  cursor: pointer;
+}
+
 .day-list-item.today {
 
+}
+
+.day-item-checkbox {
+  display: inline-block;
+  user-select: none;
+  cursor: pointer;
+  font-size: 30px;
+  vertical-align: middle;
 }
 
 .day-list-item.today .day-item-title {
   border-bottom: 1px solid black;
 }
 
-.day-item-title {
-  cursor: pointer;
+.day-list-item .done .day-item-input{
+  text-decoration:line-through;
 }
 </style>
