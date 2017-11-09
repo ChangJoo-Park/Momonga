@@ -1,5 +1,5 @@
 {
-  "name": "parrots",
+  "name": "momonga",
   "version": "0.0.0",
   "author": "ChangJoo Park <pcjpcj2@gmail.com>",
   "description": "An electron-vue project",
@@ -22,7 +22,7 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "parrots",
+    "productName": "momonga",
     "appId": "org.simulatedgreg.electron-vue",
     "directories": {
       "output": "build"

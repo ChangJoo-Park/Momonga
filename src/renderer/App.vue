@@ -6,7 +6,7 @@
 
 <script>
   export default {
-    name: 'parrots'
+    name: 'momonga'
   }
 </script>
 
