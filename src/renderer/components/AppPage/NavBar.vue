@@ -1,10 +1,12 @@
 <template>
   <div class="nav-wrapper">
     <div class="nav-item nav-item-left" @click="$emit('goLastWeek')">
-      <span class="nav-item-arrow"><</span><span>{{ lastWeek }}</span>
+      <span class="nav-item-arrow"><</span>
+      <span class="nav-item-text active">{{ lastWeek }}</span>
     </div>
     <div class="nav-item nav-item-right" @click="$emit('goNextWeek')">
-      <span>{{ thisWeek }}</span><span class="nav-item-arrow">></span>
+      <span class="nav-item-text">{{ thisWeek }}</span>
+      <span class="nav-item-arrow">></span>
     </div>
   </div>
 </template>
@@ -40,5 +42,21 @@ export default {
   justify-content: space-between;
   align-items: center;
   min-height: 30px;
+  margin-bottom: 10px;
+}
+.nav-item-text, .nav-item-arrow {
+  font-size: 30px;
+}
+
+.nav-item {
+  user-select: none;
+  cursor: pointer;
+}
+
+.nav-item-text.active {
+  color: #4fc08d;
+}
+.nav-item-arrow {
+  color: #4fc08d;
 }
 </style>
