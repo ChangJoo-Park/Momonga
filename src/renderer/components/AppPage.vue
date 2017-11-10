@@ -6,17 +6,19 @@
       @goNextWeek="moveNextWeek"
     ></nav-bar>
     <main>
-      <day-list>
-        <day-item
-          v-for="day in currentWeekDays"
-          :day="day"
-          :key="day.number"
-          @addItem="addItemToDay"
-          @removeItem="removeItem"
-          @updateItemText="updateItemText"
-          @toggleDone="doneItem"
-        ></day-item>
-      </day-list>
+      <transition name="list" tag="div" mode="out-in" appear>
+        <day-list :key="today">
+          <day-item
+            v-for="day in currentWeekDays"
+            :day="day"
+            :key="day.number"
+            @addItem="addItemToDay"
+            @removeItem="removeItem"
+            @updateItemText="updateItemText"
+            @toggleDone="doneItem"
+          ></day-item>
+        </day-list>
+      </transition>
     </main>
     <!-- Setting -->
     <!-- Setting Button -->
@@ -56,6 +58,12 @@ export default {
         isSettingOpened: false,
         currentWeek: null,
         currentWeekDays: null
+      }
+    },
+    computed: {
+      today: function () {
+        console.log(this.currentWeek.today.raw)
+        return this.currentWeek.today.raw + ''
       }
     },
     methods: {
@@ -170,5 +178,18 @@ export default {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.list-item {
+  margin-right: 10px;
+}
+
+.list-enter-active, .list-leave-active {
+  transition: all .4s;
+}
+
+.list-enter, .list-leave-to {
+  opacity: 0;
+  transform: translateX(50px);
 }
 </style>

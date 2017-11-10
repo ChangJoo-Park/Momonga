@@ -1,5 +1,5 @@
 <template>
-  <li class="day-list-item">
+  <li class="day-list-item" :key="day.id">
     <div>
       <h2 class="day-item-title" @click="addNewItemWithEmpty">{{day.text}} - {{day.number}}</h2>
     </div>
