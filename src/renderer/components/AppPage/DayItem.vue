@@ -28,7 +28,7 @@
             @keydown.tab.prevent="toggleDoneItem(item)"
           ></textarea>
         </div>
-        <div v-if="item.note">
+        <div class="day-item-note-wrapper" v-if="item.note">
           <textarea
           class="day-item-note"
           v-model="item.note.body"
@@ -268,21 +268,25 @@ export default {
 
 .day-item {
   display: flex;
+  align-items: center;
 }
 .day-item-input {
   font-size: 15px;
   width: 100%;
-  margin: 5px;
+  margin: 0;
   border: none;
   outline: none;
   resize: none;
+}
+
+.day-item-note-wrapper {
+  margin-bottom: 2px;
 }
 
 .day-item-note {
   color: #4fc08d;
   font-size: 12px;
   width: 100%;
-  margin: 5px;
   border: none;
   outline: none;
   resize: none;
