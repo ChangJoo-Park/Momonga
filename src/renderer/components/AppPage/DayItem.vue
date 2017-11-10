@@ -7,25 +7,36 @@
     <input class="dummy-text-input" type="text" @focus="addNewItemWithEmpty" @click="addNewItem" v-if="itemsNotExists">
     <!--  -->
     <template v-if="itemsExists">
-      <div class="day-item" v-for="item in items" :key="item.id" :class=" { 'done': item.isDone }">
-        <div class="day-item-checkbox" @click="toggleDoneItem(item)">
-          <span v-if="item.isDone" :key="`item-${item.id}-done`">	&#9679;</span>
-          <span v-else :key="`item-${item.id}-notdone`">&#9675;</span>
+      <div v-for="item in items" :key="item.id" :class=" { 'done': item.isDone }">
+        <div class="day-item">
+          <div class="day-item-checkbox" @click="toggleDoneItem(item)">
+            <span v-if="item.isDone" :key="`item-${item.id}-done`">	&#9679;</span>
+            <span v-else :key="`item-${item.id}-notdone`">&#9675;</span>
+          </div>
+          <textarea type="text"
+            class="day-item-input"
+            autofocus
+            rows="1"
+            v-model="item.text"
+            :ref="`input-${item.id}`"
+            :key="item.id"
+            @focus="currentItem = item"
+            @keydown.up.prevent="moveItemUp(true, item)"
+            @keydown.down.prevent="moveItemUp(false, item)"
+            @keydown.enter.prevent="handleEnter"
+            @keydown.delete="removeItem(item)"
+            @keydown.tab.prevent="toggleDoneItem(item)"
+          ></textarea>
         </div>
-        <textarea type="text"
-          class="day-item-input"
-          autofocus
-          rows="1"
-          v-model="item.text"
-          :ref="`input-${item.id}`"
-          :key="item.id"
-          @focus="currentItem = item"
-          @keydown.up.prevent="moveItemUp(true, item)"
-          @keydown.down.prevent="moveItemUp(false, item)"
-          @keydown.enter.prevent="handleEnter"
-          @keydown.delete="removeItem(item)"
+        <div v-if="item.note">
+          <textarea
+          class="day-item-note"
+          v-model="item.note.body"
+          :ref="`note-${item.note.id}`"
           @keydown.tab.prevent="toggleDoneItem(item)"
-        ></textarea>
+          @keydown.delete="removeNote(item)"
+          ></textarea>
+        </div>
       </div>
     </template>
   </li>
@@ -61,6 +72,9 @@ export default {
       return this.items[this.itemCount - 1]
     },
     currentItemTextLength: function () {
+      if (this.currentItem === undefined) {
+        return 0
+      }
       return this.currentItem.text.length
     },
     currentItemIndex: function () {
@@ -155,6 +169,12 @@ export default {
         this.focusItem(this.items[nextIndex])
       }
     },
+    removeNote: function () {
+      if (this.currentItem.note.body.length === 0) {
+        this.$set(this.currentItem, 'note', null)
+        this.focusItem(this.currentItem)
+      }
+    },
     /**
      * 전달받은 아이템의 완료 상태를 토글
      */
@@ -165,8 +185,21 @@ export default {
     /**
      * 아이템에 노트를 추가함 (최대 1개)
      */
-    addItemNote: function (item) {
-      console.log('addItemNote')
+    addItemNote: function () {
+      let id = -1
+      if (this.currentItem.note === undefined) {
+        id = Math.floor(Math.random() * 99999)
+        this.$set(this.currentItem, 'note', {
+          id: id,
+          body: ''
+        })
+      }
+      id = this.currentItem.note.id
+      this.$nextTick(_ => {
+        const target = `note-${id}`
+        const input = this.$refs[target][0]
+        input.focus()
+      })
     },
     /**
      * 아이템의 다음 포커스 상태를 선택한다
@@ -222,7 +255,8 @@ export default {
   border-bottom: 1px solid black;
 }
 
-.day-list-item .done .day-item-input{
+.day-list-item .done .day-item-input,
+.day-list-item .done .day-item-note {
   text-decoration:line-through;
 }
 
@@ -237,6 +271,16 @@ export default {
 }
 .day-item-input {
   font-size: 15px;
+  width: 100%;
+  margin: 5px;
+  border: none;
+  outline: none;
+  resize: none;
+}
+
+.day-item-note {
+  color: #4fc08d;
+  font-size: 12px;
   width: 100%;
   margin: 5px;
   border: none;
