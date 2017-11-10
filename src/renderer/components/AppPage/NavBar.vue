@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import { format } from 'date-fns'
 export default {
   props: {
     currentWeek: {
@@ -21,16 +22,13 @@ export default {
   },
   computed: {
     lastWeek: function () {
-      const lastWeek = this.$S.Date(this.currentWeek.today.raw).get('last week')
-      const lastWeekNumber = lastWeek.getISOWeek().raw + 1
-      const lastWeekYear = lastWeek.format('{yyyy}')
-      return `${lastWeekYear} ${lastWeekNumber}`
+      return `${this.currentWeek.year} ${this.currentWeek.week}`
     },
     thisWeek: function () {
-      const beginString = this.$S.Date(this.currentWeek.begin).format('{d}').raw
-      const endString = this.$S.Date(this.currentWeek.end).format('{d}').raw
-      const monthString = this.$S.Date(this.currentWeek.end).format('{M}').raw
-      return `${beginString} - ${endString} ${monthString}월`
+      const start = format(this.currentWeek.start, 'D')
+      const end = format(this.currentWeek.end, 'D')
+      const month = format(this.currentWeek.date, 'MMM')
+      return `${start} - ${end} ${month}`
     }
   }
 }
