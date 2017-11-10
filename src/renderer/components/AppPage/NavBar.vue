@@ -13,6 +13,8 @@
 
 <script>
 import { format } from 'date-fns'
+import koLocale from 'date-fns/locale/ko'
+
 export default {
   props: {
     currentWeek: {
@@ -25,9 +27,12 @@ export default {
       return `${this.currentWeek.year} ${this.currentWeek.week}`
     },
     thisWeek: function () {
-      const start = format(this.currentWeek.start, 'D')
-      const end = format(this.currentWeek.end, 'D')
-      const month = format(this.currentWeek.date, 'MMM')
+      const options = {
+        locale: koLocale
+      }
+      const start = format(this.currentWeek.start, 'D', options)
+      const end = format(this.currentWeek.end, 'D', options)
+      const month = format(this.currentWeek.date, 'MMM', options)
       return `${start} - ${end} ${month}`
     }
   }
@@ -43,7 +48,7 @@ export default {
   margin-bottom: 10px;
 }
 .nav-item-text, .nav-item-arrow {
-  font-size: 30px;
+  font-size: 20px;
 }
 
 .nav-item {

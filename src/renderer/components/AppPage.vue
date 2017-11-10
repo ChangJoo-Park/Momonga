@@ -6,7 +6,7 @@
       @goNextWeek="moveNextWeek"
     ></nav-bar>
     <main>
-      <!-- <transition name="list" tag="div" mode="out-in" appear>
+      <transition name="list" tag="div" mode="out-in" appear>
         <day-list :key="today">
           <day-item
             v-for="day in currentWeekDays"
@@ -18,7 +18,7 @@
             @toggleDone="doneItem"
           ></day-item>
         </day-list>
-      </transition> -->
+      </transition>
     </main>
     <!-- Setting -->
     <!-- Setting Button -->
@@ -39,7 +39,8 @@ import NavBar from './AppPage/NavBar'
 import SettingModal from './AppPage/SettingModal'
 import DayList from './AppPage/DayList'
 import DayItem from './AppPage/DayItem'
-import { getISOYear, getISOWeek, startOfISOWeek, endOfISOWeek, addWeeks, subWeeks } from 'date-fns'
+import { getISOYear, getISOWeek, startOfWeek, endOfWeek, addWeeks, subWeeks, format, addDays } from 'date-fns'
+import koLocale from 'date-fns/locale/ko'
 
 export default {
   name: 'app-page',
@@ -61,24 +62,22 @@ export default {
   },
   computed: {
     today: function () {
-      console.log(this.currentWeek.today.raw)
-      return this.currentWeek.today.raw + ''
+      return this.currentWeek.date + ''
     }
   },
   methods: {
     getCurrentWeekDays: function () {
-      const begin = JSON.parse(JSON.stringify(this.currentWeek.begin))
-      const startDay = new this.$S.Date(begin)
+      let startDay = this.currentWeek.start
       const weekDays = []
       for (let index = 0; index < 7; index++) {
         const id = Math.floor(Math.random() * 99999)
         weekDays.push({
           id: id,
-          text: startDay.format('{Weekday}').raw,
-          number: startDay.format('{d}').raw,
+          text: format(startDay, 'dddd', { locale: koLocale }),
+          number: format(startDay, 'Do', { locale: koLocale }),
           items: []
         })
-        startDay.addDays(1)
+        startDay = addDays(startDay, 1)
       }
       return weekDays
     },
@@ -93,11 +92,11 @@ export default {
     setCurrentWeek: function (date) {
       const year = getISOYear(date)
       const week = getISOWeek(date)
-      const start = startOfISOWeek(date)
-      const end = endOfISOWeek(date)
+      const start = startOfWeek(date, {weekStartsOn: 0})
+      const end = endOfWeek(date, {weekStartsOn: 0})
 
       this.currentWeek = { date, start, end, year, week }
-      // this.currentWeekDays = this.getCurrentWeekDays()
+      this.currentWeekDays = this.getCurrentWeekDays()
     },
     addItemToDay: function (day, itemIndex = -1, text = '') {
       const targetIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')

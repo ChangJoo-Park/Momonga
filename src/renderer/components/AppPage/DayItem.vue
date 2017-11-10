@@ -206,6 +206,9 @@ export default {
   display: inline-block;
   cursor: pointer;
   margin: 0;
+  margin-bottom: 5px;
+  font-size: 22px;
+  font-weight: normal;
 }
 
 .day-item-checkbox {
@@ -233,9 +236,7 @@ export default {
   display: flex;
 }
 .day-item-input {
-  font-size: 20px;
-  min-height: 20px;
-  line-height: 20px;
+  font-size: 15px;
   width: 100%;
   margin: 5px;
   border: none;
