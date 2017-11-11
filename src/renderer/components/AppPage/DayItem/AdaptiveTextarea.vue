@@ -1,7 +1,8 @@
 <template>
   <textarea
-  v-model="text"
+  :value="source"
   class="textarea"
+  @input="$emit('update:source', $event.target.value)"
   :rows="currentRows"
   ></textarea>
 </template>
@@ -9,9 +10,13 @@
 <script>
 export default {
   name: 'adaptive-textarea',
+  props: {
+    source: {
+      type: String
+    }
+  },
   data: function () {
     return {
-      text: '',
       minRows: 1,
       maxRows: 20,
       currentRows: 1,
@@ -26,14 +31,13 @@ export default {
     this.$el.focus()
   },
   watch: {
-    text: function () {
-      this.$emit('update', this.text)
+    source: function () {
       this.updateRows()
     }
   },
   methods: {
     updateRows: function () {
-      if (this.text === '') {
+      if (this.source === '') {
         this.currentRows = this.minRows
         return
       }

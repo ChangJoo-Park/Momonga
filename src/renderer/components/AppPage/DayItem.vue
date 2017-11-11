@@ -4,8 +4,7 @@
       <h2 class="day-item-title" @click="addNewItemWithEmpty">{{day.text}} - {{day.number}}</h2>
     </div>
     <!-- Empty State -->
-    <input class="dummy-text-input" type="text" @focus="addNewItemWithEmpty" @click="addNewItem" v-if="itemsNotExists">
-    <!--  -->
+    <input class="dummy-text-input" type="text" @focus="addNewItemWithEmpty" v-if="itemsNotExists">
     <template v-if="itemsExists">
       <div v-for="item in items" :key="item.id" :class=" { 'done': item.isDone }">
         <div class="day-item">
@@ -13,29 +12,28 @@
             <span v-if="item.isDone" :key="`item-${item.id}-done`">	&#9679;</span>
             <span v-else :key="`item-${item.id}-notdone`">&#9675;</span>
           </div>
-          <textarea type="text"
+          <adaptive-textarea
             class="day-item-input"
-            autofocus
-            rows="1"
-            v-model="item.text"
-            :ref="`input-${item.id}`"
+            :ref="`inputs-${item.id}`"
             :key="item.id"
-            @focus="currentItem = item"
-            @keydown.up.prevent="moveItemUp(true, item)"
-            @keydown.down.prevent="moveItemUp(false, item)"
-            @keydown.enter.prevent="handleEnter"
-            @keydown.delete="removeItem(item)"
-            @keydown.tab.prevent="toggleDoneItem(item)"
-          ></textarea>
+            :source.sync="item.text"
+            @focus.native="changeCurrentItem(item)"
+            @keydown.up.native.prevent="moveItemUp(true, item)"
+            @keydown.down.native.prevent="moveItemUp(false, item)"
+            @keydown.enter.native.prevent="handleEnter"
+            @keydown.delete.native="removeItem"
+            @keydown.tab.native.prevent="toggleDoneItem(item)"
+          ></adaptive-textarea>
         </div>
         <div class="day-item-note-wrapper" v-if="item.note">
-          <textarea
+          <adaptive-textarea
           class="day-item-note"
-          v-model="item.note.body"
           :ref="`note-${item.note.id}`"
-          @keydown.tab.prevent="toggleDoneItem(item)"
-          @keydown.delete="removeNote(item)"
-          ></textarea>
+          :source.sync="item.note.body"
+          @focus.native="changeCurrentItem(item)"
+          @keydown.native.tab.prevent="toggleDoneItem(item)"
+          @keydown.native.delete="removeNote(item)"
+          ></adaptive-textarea>
         </div>
       </div>
     </template>
@@ -43,6 +41,8 @@
 </template>
 
 <script>
+import AdaptiveTextarea from './DayItem/AdaptiveTextarea'
+
 export default {
   props: {
     day: {
@@ -54,6 +54,9 @@ export default {
     return {
       currentItem: null
     }
+  },
+  components: {
+    'adaptive-textarea': AdaptiveTextarea
   },
   computed: {
     items: function () {
@@ -77,103 +80,44 @@ export default {
       }
       return this.currentItem.text.length
     },
+    isCurrentItemTextEmpty: function () {
+      return this.currentItemTextLength === 0
+    },
     currentItemIndex: function () {
+      if (this.currentItem === null || this.currentItem === undefined) {
+        return -1
+      }
       return this.day.items.findIndex(i => this.currentItem.id === i.id)
     }
   },
-  methods: {
-    // 전달받은 item에 포커스가 되도록 한다.
-    focusItem: function (item) {
-      if (item === undefined) {
+  watch: {
+    currentItem: function (val) {
+      if (val === undefined || val === null) {
+        document.activeElement.blur()
         return
       }
-      document.activeElement.blur()
-      this.$nextTick(_ => {
-        const id = `input-${item.id}`
-        const input = this.$refs[id][0]
-        input.focus()
-      })
+      const target = `inputs-${this.currentItem.id}`
+      this.$refs[target][0].$el.focus()
+    }
+  },
+  methods: {
+    changeCurrentItem: function (item) {
+      this.currentItem = item
     },
-    /**
-     * 엔터키 처리
-     * 엔터키만 입력한 경우 : 새 아이템을 추가
-     * 쉬프트와 함께 입력한 경우 : 아이템의 노트 추가
-     */
-    handleEnter: function () {
-      if (event.shiftKey) {
-        this.addItemNote()
-      } else {
-        this.addNewItem()
-      }
-    },
-    /**
-     * 날짜 / 빈칸을 눌러서 만드는 경우에는 아무 내용 없이 아이템을 만들어야함
-     */
     addNewItemWithEmpty: function () {
       this.$emit('addItem', this.day, -1, '')
-      this.focusItem(this.lastItem)
     },
-    /**
-     * 아이템이 선택된 경우만 작동함
-     */
-    addNewItem: function () {
-      // Message
-      const caretPosition = this.getCaretPosition()
-      const isCaretPositionMiddle = caretPosition !== this.currentItemTextLength
+    moveItemUp: function (isUp, item) {
+      const isFirst = (isUp && this.currentItemIndex === 0)
+      const isLast = (!isUp && this.currentItemIndex === this.itemCount - 1)
+      const isFirstOrLast = isFirst || isLast
 
-      let tailText = ''
-      let remainText = this.currentItem.text
-
-      if (isCaretPositionMiddle) {
-        remainText = this.currentItem.text.slice(0, caretPosition)
-        tailText = this.currentItem.text.slice(caretPosition, this.currentItemTextLength)
+      if (isFirstOrLast) {
+        console.log('처음 혹은 마지막은 다음 날짜로 이동한다')
+        return
       }
-
-      this.$emit('updateItemText', this.day, this.currentItem, remainText)
-
-      const day = Object.assign({}, this.day)
-      this.$emit('addItem', day, this.currentItemIndex, tailText)
-
-      this.focusItem(this.items[this.currentItemIndex + 1])
-    },
-    /**
-     * 삭제 후 어떤 아이템이 선택되어야하는지 결정
-     * 첫번째 아이템이고 두개 이상인 경우 0번 인덱스가 다음 포커스 아이템
-     * 중간 아이템인 경우 현재 아이템에서 하나 뺀 인덱스
-     * 마지막인 경우 맨 마지막을 선택
-     */
-    findNextItemIndex: function (item) {
-      const itemIndex = this.items.findIndex(i => i.id === item.id)
-      const isFirstItemAndMoreThanOne = itemIndex === 0 && this.itemCount !== 0
-      const isMiddleItemAndMoreThanEqualOne = (itemIndex === this.itemCount - 1) && (this.itemCount - 1 >= 1)
-      let nextIndex = -1
-
-      if (isFirstItemAndMoreThanOne) {
-        nextIndex = 0
-      } else if (isMiddleItemAndMoreThanEqualOne) {
-        nextIndex = this.itemCount - 2
-      } else {
-        nextIndex = itemIndex - 1
-      }
-      return nextIndex
-    },
-    /**
-     * 캐럿 포지션이 0이고 텍스트가 0개일때 아이템을 삭제한다
-     */
-    removeItem: function (item) {
-      const nextIndex = this.findNextItemIndex(item)
-
-      const isCaretPositionZeroAndEmptyText = this.getCaretPosition() === 0 && item.text.length === 0
-      if (isCaretPositionZeroAndEmptyText) {
-        this.$emit('removeItem', this.day, item)
-        this.focusItem(this.items[nextIndex])
-      }
-    },
-    removeNote: function () {
-      if (this.currentItem.note.body.length === 0) {
-        this.$set(this.currentItem, 'note', null)
-        this.focusItem(this.currentItem)
-      }
+      const nextIndex = isUp ? this.currentItemIndex - 1 : this.currentItemIndex + 1
+      this.currentItem = this.items[nextIndex]
     },
     /**
      * 전달받은 아이템의 완료 상태를 토글
@@ -183,9 +127,77 @@ export default {
       this.$emit('toggleDone', day, item)
     },
     /**
+     * 캐럿 포지션이 0이고 텍스트가 0개일때 아이템을 삭제한다
+     */
+    removeItem: function () {
+      const isEmptyLength = this.isCurrentItemTextEmpty
+      const isZeroCaret = this.getCaretPosition() === 0
+      if (isEmptyLength && isZeroCaret) {
+        const nextIndex = this.findNextItemIndex(this.currentItem)
+        this.$emit('removeItem', this.day, this.currentItem)
+        if (nextIndex === -1) {
+          this.currentItem = null
+        } else {
+          this.currentItem = this.items[nextIndex]
+        }
+      }
+    },
+    removeNote: function () {
+      const isCaretPositionZeroAndEmptyText = this.getCaretPosition() === 0 && this.currentItem.note.body.length === 0
+      if (isCaretPositionZeroAndEmptyText) {
+        this.$set(this.currentItem, 'note', null)
+        const target = `inputs-${this.currentItem.id}`
+        this.$refs[target][0].$el.focus()
+      }
+    },
+    /**
+     * 삭제 후 어떤 아이템이 선택되어야하는지 결정
+     * 첫번째 아이템이고 두개 이상인 경우 0번 인덱스가 다음 포커스 아이템
+     * 중간 아이템인 경우 현재 아이템에서 하나 뺀 인덱스
+     * 마지막인 경우 맨 마지막을 선택
+     */
+    findNextItemIndex: function (item) {
+      const isFirstItem = this.currentItemIndex === 0
+      const isLastItem = this.currentItemIndex === this.items.length - 1
+      const isOnlyOne = isFirstItem && isLastItem
+      if (isOnlyOne) {
+        console.log('한개만 있는경우')
+        return -1
+      }
+      const isMoreThanOne = this.itemCount > 1
+      if (isFirstItem && isMoreThanOne) {
+        console.log('첫번쨰 아이템이면서 한개 이상 있는 경우')
+        return this.currentItemIndex
+      } else if (isLastItem && isMoreThanOne) {
+        console.log('마지막이면서 한개 이상 있는 경우')
+        return this.itemCount - 2
+      } else {
+        return this.currentItemIndex - 1
+      }
+    },
+    /**
+     * 현재 선택된 엘리먼트의 캐럿 위치를 찾는다.
+     */
+    getCaretPosition: function () {
+      const el = document.activeElement
+      if (el.nodeName === 'BODY') {
+        return
+      }
+      const val = el.value
+      return val.slice(0, el.selectionStart).length
+    },
+    handleEnter: function () {
+      if (event.shiftKey) {
+        this.addItemNote()
+      } else {
+        this.addNewItem()
+      }
+    },
+    /**
      * 아이템에 노트를 추가함 (최대 1개)
      */
     addItemNote: function () {
+      console.log('add item note')
       let id = -1
       if (this.currentItem.note === undefined) {
         id = Math.floor(Math.random() * 99999)
@@ -198,36 +210,29 @@ export default {
       this.$nextTick(_ => {
         const target = `note-${id}`
         const input = this.$refs[target][0]
-        input.focus()
+        input.$el.focus()
       })
     },
     /**
-     * 아이템의 다음 포커스 상태를 선택한다
+     * 아이템이 선택된 경우만 작동함
      */
-    moveItemUp: function (isUp, item) {
-      const isFirst = (isUp && this.currentItemIndex === 0)
-      const isLast = (!isUp && this.currentItemIndex === this.itemCount - 1)
-      const isFirstOrLast = isFirst || isLast
+    addNewItem: function () {
+      console.log('add new item')
+      // Message
+      const caretPosition = this.getCaretPosition()
+      const isCaretPositionMiddle = caretPosition !== this.currentItemTextLength
 
-      if (isFirstOrLast) {
-        console.log('처음 혹은 마지막은 다음 날짜로 이동한다')
-        return
-      }
+      let tailText = ''
+      let remainText = this.currentItem.text
 
-      const nextIndex = isUp ? this.currentItemIndex - 1 : this.currentItemIndex + 1
-      const nextItem = this.items[nextIndex]
-      this.focusItem(nextItem)
-    },
-    /**
-     * 현재 선택된 엘리먼트의 캐럿 위치를 찾는다.
-     */
-    getCaretPosition: function () {
-      const el = document.activeElement
-      if (el.nodeName === 'BODY') {
-        return
+      if (isCaretPositionMiddle) {
+        remainText = this.currentItem.text.slice(0, caretPosition)
+        tailText = this.currentItem.text.slice(caretPosition, this.currentItemTextLength)
       }
-      const val = el.value
-      return val.slice(0, el.selectionStart).length
+      console.log(tailText)
+      this.$emit('updateItemText', this.day, this.currentItem, remainText)
+      const day = Object.assign({}, this.day)
+      this.$emit('addItem', day, this.currentItemIndex, tailText)
     }
   }
 }
