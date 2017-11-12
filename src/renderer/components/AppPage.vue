@@ -90,10 +90,10 @@ export default {
       this.setCurrentWeek(date)
     },
     setCurrentWeek: function (date) {
-      const year = getISOYear(date)
-      const week = getISOWeek(date)
       const start = startOfWeek(date, {weekStartsOn: 0})
       const end = endOfWeek(date, {weekStartsOn: 0})
+      const year = getISOYear(date)
+      const week = getISOWeek(end)
 
       this.currentWeek = { date, start, end, year, week }
       this.currentWeekDays = this.getCurrentWeekDays()
