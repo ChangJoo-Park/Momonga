@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import axios from 'axios'
 import PouchDB from 'pouchdb-browser'
-import HoodieStore from '@hoodie/store-client'
+import PouchDBFind from 'pouchdb-find'
+
 import App from './App'
 import router from './router'
 import store from './store'
@@ -11,12 +12,8 @@ Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
 /* Initialize Database */
-const hoodieStore = new HoodieStore('momonga', {
-  PouchDB,
-  remoteBaseUrl: 'http://localhost:5984'
-})
-
-Vue.prototype.$db = hoodieStore
+PouchDB.plugin(PouchDBFind)
+Vue.prototype.$db = new PouchDB('momonga')
 
 /* eslint-disable no-new */
 new Vue({
