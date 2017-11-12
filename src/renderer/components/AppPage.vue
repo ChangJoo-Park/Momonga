@@ -70,14 +70,22 @@ export default {
       let startDay = this.currentWeek.start
       const weekDays = []
       for (let index = 0; index < 7; index++) {
-        const id = Math.floor(Math.random() * 99999)
-        weekDays.push({
-          id: id,
-          text: format(startDay, 'dddd', { locale: koLocale }),
-          number: format(startDay, 'Do', { locale: koLocale }),
-          items: []
+        const queryDate = format(startDay, 'YYYY-MM-DD')
+        this.$db.find({
+          selector: {
+            day: { $eq: queryDate }
+          }
+        }).then(result => {
+          const id = Math.floor(Math.random() * 99999)
+          const docs = result.docs
+          weekDays.push({
+            id: id,
+            text: format(startDay, 'dddd', { locale: koLocale }),
+            number: format(startDay, 'Do', { locale: koLocale }),
+            items: docs
+          })
+          startDay = addDays(startDay, 1)
         })
-        startDay = addDays(startDay, 1)
       }
       return weekDays
     },
