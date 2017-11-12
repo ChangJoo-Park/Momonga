@@ -184,7 +184,7 @@ export default {
 
 .list-enter, .list-leave-to {
   opacity: 0;
-  transform: translateX(50px);
+  transform: translateX(-50px);
 }
 
 #wrapper {
