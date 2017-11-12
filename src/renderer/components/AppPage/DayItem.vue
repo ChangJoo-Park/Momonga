@@ -128,6 +128,10 @@ export default {
     toggleDoneItem: function (item) {
       const day = Object.assign({}, this.day)
       this.$emit('toggleDone', day, item)
+      this.$db.get(this.currentItem._id).then(doc => {
+        doc.isDone = this.currentItem.isDone
+        this.$db.put(doc)
+      })
     },
     /**
      * 캐럿 포지션이 0이고 텍스트가 0개일때 아이템을 삭제한다
