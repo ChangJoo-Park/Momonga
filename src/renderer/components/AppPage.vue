@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import uuid from 'uuid/v4'
 import NavBar from './AppPage/NavBar'
 import SettingModal from './AppPage/SettingModal'
 import DayList from './AppPage/DayList'
@@ -67,27 +68,37 @@ export default {
   },
   methods: {
     getCurrentWeekDays: function () {
-      let startDay = this.currentWeek.start
-      const weekDays = []
-      for (let index = 0; index < 7; index++) {
-        const queryDate = format(startDay, 'YYYY-MM-DD')
-        this.$db.find({
-          selector: {
-            day: { $eq: queryDate }
-          }
-        }).then(result => {
-          const id = Math.floor(Math.random() * 99999)
-          const docs = result.docs
-          weekDays.push({
-            id: id,
-            text: format(startDay, 'dddd', { locale: koLocale }),
-            number: format(startDay, 'Do', { locale: koLocale }),
-            items: docs
-          })
+      return new Promise((resolve, reject) => {
+        let startDay = this.currentWeek.start
+        const weekDays = []
+        const promises = []
+        console.log(koLocale)
+        for (let index = 0; index < 7; index++) {
+          const queryDate = format(startDay, 'YYYY-MM-DD')
+          promises.push(this.$db.find({
+            selector: {
+              date: { $eq: queryDate }
+            }
+          }))
           startDay = addDays(startDay, 1)
+        }
+        Promise.all(promises).then(results => {
+          let startDay = this.currentWeek.start
+          results.forEach(day => {
+            const id = Math.floor(Math.random() * 99999)
+            const docs = day.docs
+            weekDays.push({
+              id: id,
+              text: format(startDay, 'dddd', { locale: koLocale }),
+              number: format(startDay, 'Do', { locale: koLocale }),
+              date: format(startDay, 'YYYY-MM-DD'),
+              items: docs
+            })
+            startDay = addDays(startDay, 1)
+          })
+          resolve(weekDays)
         })
-      }
-      return weekDays
+      })
     },
     moveLastWeek: function () {
       const date = subWeeks(this.currentWeek.date, 1)
@@ -104,31 +115,51 @@ export default {
       const week = getISOWeek(end)
 
       this.currentWeek = { date, start, end, year, week }
-      this.currentWeekDays = this.getCurrentWeekDays()
+      this.getCurrentWeekDays().then(result => {
+        this.currentWeekDays = result
+      })
     },
     addItemToDay: function (day, itemIndex = -1, text = '') {
+      console.log('아이템 추가')
       const targetIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
-      const newItem = { id: Math.floor(Math.random() * 99999), text: text, isDone: false }
       if (targetIndex === -1) {
         return
       }
-      if (itemIndex === -1) {
-        this.currentWeekDays[targetIndex].items.push(newItem)
-      } else {
-        this.currentWeekDays[targetIndex].items.splice(itemIndex + 1, 0, newItem)
+      const newItem = {
+        _id: uuid(),
+        text: text,
+        isDone: false,
+        date: day.date,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
+      this.$db.put(newItem)
+        .then(response => {
+          console.log(response)
+          if (itemIndex === -1) {
+            console.log('새로 만듬')
+            this.currentWeekDays[targetIndex].items.push(newItem)
+          } else {
+            console.log('중간에 만듬')
+            this.currentWeekDays[targetIndex].items.splice(itemIndex + 1, 0, newItem)
+          }
+        })
+        .catch(error => {
+          console.log(error)
+        })
     },
     removeItem: function (day, item) {
       const dayIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
-      const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, 'id')
+      const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, '_id')
       if (dayIndex === -1 || itemIndex === -1) {
         return
       }
       this.currentWeekDays[dayIndex].items.splice(itemIndex, 1)
     },
     updateItemText: function (day, item, text = '') {
+      console.log('update item text')
       const dayIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
-      const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, 'id')
+      const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, '_id')
       if (dayIndex === -1 || itemIndex === -1) {
         return
       }
@@ -136,7 +167,7 @@ export default {
     },
     doneItem: function (day, item) {
       const dayIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
-      const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, 'id')
+      const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, '_id')
       if (dayIndex === -1 || itemIndex === -1) {
         return
       }
