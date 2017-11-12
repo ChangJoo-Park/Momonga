@@ -6,18 +6,18 @@
     <!-- Empty State -->
     <input class="dummy-text-input" type="text" @focus="addNewItemWithEmpty" v-if="itemsNotExists">
     <template v-if="itemsExists">
-      <div v-for="item in items" :key="item.id" :class=" { 'done': item.isDone }">
+      <div v-for="item in items" :key="item._id" :class=" { 'done': item.isDone }">
         <div class="day-item">
           <div class="day-item-checkbox" @click="toggleDoneItem(item)">
-            <span v-if="item.isDone" :key="`item-${item.id}-done`">	&#9679;</span>
-            <span v-else :key="`item-${item.id}-notdone`">&#9675;</span>
+            <span v-if="item.isDone" :key="`item-${item._id}-done`">	&#9679;</span>
+            <span v-else :key="`item-${item._id}-notdone`">&#9675;</span>
           </div>
           <adaptive-textarea
             class="day-item-input"
-            :ref="`inputs-${item.id}`"
-            :key="item.id"
+            :ref="`inputs-${item._id}`"
+            :key="item._id"
             :source.sync="item.text"
-            @focus.native="changeCurrentItem(item)"
+            @focus.native="changecurrentItem(item)"
             @keydown.up.native.prevent="moveItemUp(true, item)"
             @keydown.down.native.prevent="moveItemUp(false, item)"
             @keydown.enter.native.prevent="handleEnter"
@@ -30,7 +30,7 @@
           class="day-item-note"
           :ref="`note-${item.note.id}`"
           :source.sync="item.note.body"
-          @focus.native="changeCurrentItem(item)"
+          @focus.native="changecurrentItem(item)"
           @keydown.native.tab.prevent="toggleDoneItem(item)"
           @keydown.native.delete="removeNote(item)"
           ></adaptive-textarea>
@@ -80,14 +80,14 @@ export default {
       }
       return this.currentItem.text.length
     },
-    isCurrentItemTextEmpty: function () {
+    iscurrentItemTextEmpty: function () {
       return this.currentItemTextLength === 0
     },
     currentItemIndex: function () {
       if (this.currentItem === null || this.currentItem === undefined) {
         return -1
       }
-      return this.day.items.findIndex(i => this.currentItem.id === i.id)
+      return this.day.items.findIndex(i => this.currentItem._id === i._id)
     }
   },
   watch: {
@@ -96,12 +96,12 @@ export default {
         document.activeElement.blur()
         return
       }
-      const target = `inputs-${this.currentItem.id}`
+      const target = `inputs-${this.currentItem._id}`
       this.$refs[target][0].$el.focus()
     }
   },
   methods: {
-    changeCurrentItem: function (item) {
+    changecurrentItem: function (item) {
       this.currentItem = item
     },
     addNewItemWithEmpty: function () {
@@ -130,7 +130,7 @@ export default {
      * 캐럿 포지션이 0이고 텍스트가 0개일때 아이템을 삭제한다
      */
     removeItem: function () {
-      const isEmptyLength = this.isCurrentItemTextEmpty
+      const isEmptyLength = this.iscurrentItemTextEmpty
       const isZeroCaret = this.getCaretPosition() === 0
       if (isEmptyLength && isZeroCaret) {
         const nextIndex = this.findNextItemIndex(this.currentItem)
@@ -146,7 +146,7 @@ export default {
       const isCaretPositionZeroAndEmptyText = this.getCaretPosition() === 0 && this.currentItem.note.body.length === 0
       if (isCaretPositionZeroAndEmptyText) {
         this.$set(this.currentItem, 'note', null)
-        const target = `inputs-${this.currentItem.id}`
+        const target = `inputs-${this.currentItem._id}`
         this.$refs[target][0].$el.focus()
       }
     },
@@ -161,7 +161,6 @@ export default {
       const isLastItem = this.currentItemIndex === this.items.length - 1
       const isOnlyOne = isFirstItem && isLastItem
       if (isOnlyOne) {
-        console.log('한개만 있는경우')
         return -1
       }
       const isMoreThanOne = this.itemCount > 1
