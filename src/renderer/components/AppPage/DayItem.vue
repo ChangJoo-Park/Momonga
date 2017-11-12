@@ -12,6 +12,7 @@
             <span v-if="item.isDone" :key="`item-${item._id}-done`">	&#9679;</span>
             <span v-else :key="`item-${item._id}-notdone`">&#9675;</span>
           </div>
+          {{ item._id }}
           <adaptive-textarea
             class="day-item-input"
             :ref="`inputs-${item._id}`"
@@ -80,7 +81,7 @@ export default {
       if (this.currentItem === undefined) {
         return 0
       }
-      return this.currentItem.text.length
+      return this.currentItem.text.length || 0
     },
     iscurrentItemTextEmpty: function () {
       return this.currentItemTextLength === 0
@@ -235,11 +236,12 @@ export default {
       this.$emit('addItem', day, this.currentItemIndex, tailText)
     },
     updateItemText: _debounce(function () {
+      console.log(this.currentItem._id)
       this.$db.get(this.currentItem._id).then(doc => {
         doc.text = this.changecurrentItem.text
         this.$db.put(doc)
       })
-    }, 500)
+    }, 100)
   }
 }
 </script>

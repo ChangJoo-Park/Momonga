@@ -87,6 +87,7 @@ export default {
           results.forEach(day => {
             const id = Math.floor(Math.random() * 99999)
             const docs = day.docs
+            console.log(docs)
             weekDays.push({
               id: id,
               text: format(startDay, 'dddd', { locale: koLocale }),
@@ -133,6 +134,7 @@ export default {
         createdAt: new Date(),
         updatedAt: new Date()
       }
+      console.log('newItem => ', newItem)
       this.$db.put(newItem)
         .then(response => {
           console.log(response)
@@ -154,7 +156,10 @@ export default {
       if (dayIndex === -1 || itemIndex === -1) {
         return
       }
-      this.currentWeekDays[dayIndex].items.splice(itemIndex, 1)
+      this.$db.get(item._id).then(doc => {
+        this.currentWeekDays[dayIndex].items.splice(itemIndex, 1)
+        return this.$db.remove(doc)
+      })
     },
     updateItemText: function (day, item, text = '') {
       console.log('update item text')
