@@ -186,4 +186,8 @@ export default {
   opacity: 0;
   transform: translateX(50px);
 }
+
+#wrapper {
+  overflow: hidden;
+}
 </style>
