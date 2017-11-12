@@ -48,7 +48,6 @@ export default {
       } else if (rows < this.minRows) {
         rows = this.minRows
       }
-      console.log('rows : => ', rows)
       this.currentRows = rows
     },
     getCurrentFontSize: function () {
