@@ -17,6 +17,7 @@
             :ref="`inputs-${item._id}`"
             :key="item._id"
             :source.sync="item.text"
+            @updateSource="updateItemText"
             @focus.native="changecurrentItem(item)"
             @keydown.up.native.prevent="moveItemUp(true, item)"
             @keydown.down.native.prevent="moveItemUp(false, item)"
@@ -41,6 +42,7 @@
 </template>
 
 <script>
+import { debounce as _debounce } from 'lodash'
 import AdaptiveTextarea from './DayItem/AdaptiveTextarea'
 
 export default {
@@ -228,11 +230,16 @@ export default {
         remainText = this.currentItem.text.slice(0, caretPosition)
         tailText = this.currentItem.text.slice(caretPosition, this.currentItemTextLength)
       }
-      console.log(tailText)
       this.$emit('updateItemText', this.day, this.currentItem, remainText)
       const day = Object.assign({}, this.day)
       this.$emit('addItem', day, this.currentItemIndex, tailText)
-    }
+    },
+    updateItemText: _debounce(function () {
+      this.$db.get(this.currentItem._id).then(doc => {
+        doc.text = this.changecurrentItem.text
+        this.$db.put(doc)
+      })
+    }, 500)
   }
 }
 </script>

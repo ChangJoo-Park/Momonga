@@ -33,6 +33,7 @@ export default {
   watch: {
     source: function () {
       this.updateRows()
+      this.$emit('updateSource')
     }
   },
   methods: {
