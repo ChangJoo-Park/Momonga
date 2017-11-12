@@ -238,7 +238,8 @@ export default {
     updateItemText: _debounce(function () {
       console.log(this.currentItem._id)
       this.$db.get(this.currentItem._id).then(doc => {
-        doc.text = this.changecurrentItem.text
+        doc.text = this.currentItem.text
+        doc.updatedAt = new Date()
         this.$db.put(doc)
       })
     }, 100)

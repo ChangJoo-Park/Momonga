@@ -72,7 +72,6 @@ export default {
         let startDay = this.currentWeek.start
         const weekDays = []
         const promises = []
-        console.log(koLocale)
         for (let index = 0; index < 7; index++) {
           const queryDate = format(startDay, 'YYYY-MM-DD')
           promises.push(this.$db.find({
@@ -87,7 +86,6 @@ export default {
           results.forEach(day => {
             const id = Math.floor(Math.random() * 99999)
             const docs = day.docs
-            console.log(docs)
             weekDays.push({
               id: id,
               text: format(startDay, 'dddd', { locale: koLocale }),
