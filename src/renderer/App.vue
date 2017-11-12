@@ -15,4 +15,8 @@
   * {
     font-family: sans-serif;
   }
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
 </style>
