@@ -59,6 +59,7 @@
     "@hoodie/store-client": "^8.2.0",
     "axios": "^0.16.1",
     "date-fns": "^1.29.0",
+    "lodash": "^4.17.4",
     "pouchdb-browser": "^6.3.4",
     "pouchdb-find": "^6.3.4",
     "uuid": "^3.1.0",
