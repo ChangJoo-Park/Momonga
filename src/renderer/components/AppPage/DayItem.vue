@@ -29,8 +29,9 @@
         <div class="day-item-note-wrapper" v-if="item.note">
           <adaptive-textarea
           class="day-item-note"
-          :ref="`item-${item._id}-note`"
+          :ref="`note-${item.note._id}`"
           :source.sync="item.note.body"
+          @updateSource="updateNoteText"
           @focus.native="changecurrentItem(item)"
           @keydown.native.tab.prevent="toggleDoneItem(item)"
           @keydown.native.delete="removeNote(item)"
@@ -42,6 +43,7 @@
 </template>
 
 <script>
+import uuid from 'uuid/v4'
 import { debounce as _debounce } from 'lodash'
 import AdaptiveTextarea from './DayItem/AdaptiveTextarea'
 
@@ -151,9 +153,14 @@ export default {
     removeNote: function () {
       const isCaretPositionZeroAndEmptyText = this.getCaretPosition() === 0 && this.currentItem.note.body.length === 0
       if (isCaretPositionZeroAndEmptyText) {
-        this.$set(this.currentItem, 'note', null)
+        this.$set(this.currentItem, 'note', undefined)
         const target = `inputs-${this.currentItem._id}`
         this.$refs[target][0].$el.focus()
+        const targetId = this.currentItem._id
+        this.$db.get(targetId).then(doc => {
+          doc.note = undefined
+          this.$db.put(doc)
+        })
       }
     },
     /**
@@ -202,22 +209,34 @@ export default {
      * 아이템에 노트를 추가함 (최대 1개)
      */
     addItemNote: function () {
-      console.log('add item note')
-      let id = -1
+      console.log('add item note', this.currentItem.note)
       if (this.currentItem.note === undefined) {
-        id = Math.floor(Math.random() * 99999)
         this.$set(this.currentItem, 'note', {
-          id: id,
+          _id: uuid(),
           body: ''
         })
       }
-      id = this.currentItem._id
+      const targetId = this.currentItem._id
+      this.$db.get(targetId).then(doc => {
+        doc.note = this.currentItem.note
+        doc.updatedAt = new Date()
+        this.$db.put(doc)
+      })
       this.$nextTick(_ => {
-        const target = `item-${id}-note`
+        const id = this.currentItem.note._id
+        const target = `note-${id}`
         const input = this.$refs[target][0]
         input.$el.focus()
       })
     },
+    updateNoteText: _debounce(function () {
+      const targetId = this.currentItem._id
+      this.$db.get(targetId).then(doc => {
+        doc.note = this.currentItem.note
+        doc.updatedAt = new Date()
+        this.$db.put(doc)
+      })
+    }, 100),
     /**
      * 아이템이 선택된 경우만 작동함
      */
