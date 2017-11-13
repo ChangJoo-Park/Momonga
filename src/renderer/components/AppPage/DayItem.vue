@@ -12,7 +12,6 @@
             <span v-if="item.isDone" :key="`item-${item._id}-done`">	&#9679;</span>
             <span v-else :key="`item-${item._id}-notdone`">&#9675;</span>
           </div>
-          {{ item._id }}
           <adaptive-textarea
             class="day-item-input"
             :ref="`inputs-${item._id}`"
@@ -258,7 +257,7 @@ export default {
   cursor: pointer;
   margin: 0;
   margin-bottom: 5px;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: normal;
 }
 
@@ -287,6 +286,8 @@ export default {
 .day-item {
   display: flex;
   align-items: center;
+  padding-top: 2px;
+  padding-bottom: 2px;
 }
 .day-item-input {
   font-size: 15px;
