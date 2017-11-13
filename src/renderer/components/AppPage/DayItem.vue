@@ -12,30 +12,33 @@
             <span v-if="item.isDone" :key="`item-${item._id}-done`">	&#9679;</span>
             <span v-else :key="`item-${item._id}-notdone`">&#9675;</span>
           </div>
-          <adaptive-textarea
+          <textarea-autosize
             class="day-item-input"
             :ref="`inputs-${item._id}`"
             :key="item._id"
-            :source.sync="item.text"
-            @updateSource="updateItemText"
-            @focus.native="changecurrentItem(item)"
+            v-model="item.text"
+            :min-height="15"
+            :rows="1"
+            @blur.native="updateItemText(item)"
+            @focus.native="changeCurrentItem(item)"
             @keydown.up.native.prevent="moveItemUp(true, item)"
             @keydown.down.native.prevent="moveItemUp(false, item)"
             @keydown.enter.native.prevent="handleEnter"
             @keydown.delete.native="removeItem"
             @keydown.tab.native.prevent="toggleDoneItem(item)"
-          ></adaptive-textarea>
+          ></textarea-autosize>
         </div>
         <div class="day-item-note-wrapper" v-if="item.note">
-          <adaptive-textarea
-          class="day-item-note"
-          :ref="`note-${item.note._id}`"
-          :source.sync="item.note.body"
-          @updateSource="updateNoteText"
-          @focus.native="changecurrentItem(item)"
-          @keydown.native.tab.prevent="toggleDoneItem(item)"
-          @keydown.native.delete="removeNote(item)"
-          ></adaptive-textarea>
+          <textarea-autosize
+            class="day-item-note"
+            :ref="`note-${item.note._id}`"
+            v-model="item.note.body"
+            :min-height="20"
+            @blur.native="updateNoteText(item)"
+            @focus.native="changeCurrentItem(item)"
+            @keydown.native.tab.prevent="toggleDoneItem(item)"
+            @keydown.native.delete="removeNote(item)"
+          ></textarea-autosize>
         </div>
       </div>
     </template>
@@ -101,11 +104,20 @@ export default {
         return
       }
       const target = `inputs-${this.currentItem._id}`
+      console.log(this.$refs)
       this.$refs[target][0].$el.focus()
+    },
+    'currentItem.text': function (val) {
+      console.log('currentItem.text : ', val)
+    },
+    'currentItem.note.body': function (val) {
+      console.log('currentItem.note.body : ', val)
     }
   },
   methods: {
-    changecurrentItem: function (item) {
+    changeCurrentItem: function (item) {
+      console.log('item => ', item)
+      console.log('change current Item')
       this.currentItem = item
     },
     addNewItemWithEmpty: function () {
@@ -229,7 +241,8 @@ export default {
         input.$el.focus()
       })
     },
-    updateNoteText: _debounce(function () {
+    updateNoteText: _debounce(function (item) {
+      console.log('changed', item)
       const targetId = this.currentItem._id
       this.$db.get(targetId).then(doc => {
         doc.note = this.currentItem.note
@@ -328,5 +341,6 @@ export default {
   border: none;
   outline: none;
   resize: none;
+  box-sizing: border-box;
 }
 </style>
