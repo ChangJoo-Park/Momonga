@@ -12,7 +12,6 @@
             <span v-if="item.isDone" :key="`item-${item._id}-done`">	&#9679;</span>
             <span v-else :key="`item-${item._id}-notdone`">&#9675;</span>
           </div>
-          {{ item._id }}
           <adaptive-textarea
             class="day-item-input"
             :ref="`inputs-${item._id}`"
