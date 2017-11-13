@@ -249,4 +249,8 @@ export default {
 .navbar {
   flex: 0;
 }
+#main {
+  box-sizing: border-box;
+  padding: 5px;
+}
 </style>
