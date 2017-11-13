@@ -29,7 +29,7 @@
         <div class="day-item-note-wrapper" v-if="item.note">
           <adaptive-textarea
           class="day-item-note"
-          :ref="`note-${item.note.id}`"
+          :ref="`item-${item._id}-note`"
           :source.sync="item.note.body"
           @focus.native="changecurrentItem(item)"
           @keydown.native.tab.prevent="toggleDoneItem(item)"
@@ -211,9 +211,9 @@ export default {
           body: ''
         })
       }
-      id = this.currentItem.note.id
+      id = this.currentItem._id
       this.$nextTick(_ => {
-        const target = `note-${id}`
+        const target = `item-${id}-note`
         const input = this.$refs[target][0]
         input.$el.focus()
       })
@@ -239,8 +239,8 @@ export default {
       this.$emit('addItem', day, this.currentItemIndex, tailText)
     },
     updateItemText: _debounce(function () {
-      console.log(this.currentItem._id)
-      this.$db.get(this.currentItem._id).then(doc => {
+      const targetId = this.currentItem._id
+      this.$db.get(targetId).then(doc => {
         doc.text = this.currentItem.text
         doc.updatedAt = new Date()
         this.$db.put(doc)
