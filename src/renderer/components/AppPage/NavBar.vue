@@ -41,13 +41,17 @@ export default {
 
 <style>
 .nav-wrapper {
+  box-sizing: border-box;
   display: flex;
+  width: 100%;
   justify-content: space-between;
   align-items: center;
   min-height: 30px;
   margin-bottom: 10px;
   line-height: 30px;
   font-size: 20px;
+  background-color: #fff;
+  padding: 5px;
 }
 .nav-item-text, .nav-item-arrow {
   font-size: 20px;

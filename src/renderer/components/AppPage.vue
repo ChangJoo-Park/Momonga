@@ -1,25 +1,28 @@
 <template>
   <div id="wrapper">
     <nav-bar
+      class="navbar"
       :currentWeek="currentWeek"
       @goLastWeek="moveLastWeek"
       @goNextWeek="moveNextWeek"
     ></nav-bar>
-    <main>
-      <transition name="list" tag="div" mode="out-in" appear>
-        <day-list :key="today">
-          <day-item
-            v-for="day in currentWeekDays"
-            :day="day"
-            :key="day.number"
-            @addItem="addItemToDay"
-            @removeItem="removeItem"
-            @updateItemText="updateItemText"
-            @toggleDone="doneItem"
-          ></day-item>
-        </day-list>
-      </transition>
-    </main>
+    <div class="main-wrapper">
+      <main id="main">
+        <transition name="list" tag="div" mode="out-in" appear>
+          <day-list :key="today">
+            <day-item
+              v-for="day in currentWeekDays"
+              :day="day"
+              :key="day.number"
+              @addItem="addItemToDay"
+              @removeItem="removeItem"
+              @updateItemText="updateItemText"
+              @toggleDone="doneItem"
+            ></day-item>
+          </day-list>
+        </transition>
+      </main>
+    </div>
     <!-- Setting -->
     <!-- Setting Button -->
     <button
@@ -185,6 +188,9 @@ export default {
         }
       }
       return targetIndex
+    },
+    goToScrollTop: function () {
+      this.$el.scrollTop = 0
     }
   }
 }
@@ -231,5 +237,10 @@ export default {
 
 #wrapper {
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.navbar {
+  flex: 0;
 }
 </style>
