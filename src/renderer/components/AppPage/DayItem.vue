@@ -6,7 +6,7 @@
     <!-- Empty State -->
     <input class="dummy-text-input" type="text" @focus="addNewItemWithEmpty" v-if="itemsNotExists">
     <template v-if="itemsExists">
-      <div v-for="item in items" :key="item._id" :class=" { 'done': item.isDone }">
+      <div v-for="item in sortedByOrderItems" :key="item._id" :class=" { 'done': item.isDone }">
         <div class="day-item">
           <div class="day-item-checkbox" @click="toggleDoneItem(item)">
             <span v-if="item.isDone" :key="`item-${item._id}-done`">	&#9679;</span>
@@ -34,7 +34,7 @@
             :ref="`note-${item.note._id}`"
             v-model="item.note.body"
             :min-height="20"
-            @blur.native="updateNoteText(item)"
+            @blur.native="updateNoteText"
             @focus.native="changeCurrentItem(item)"
             @keydown.native.tab.prevent="toggleDoneItem(item)"
             @keydown.native.delete="removeNote(item)"
@@ -68,6 +68,9 @@ export default {
   computed: {
     items: function () {
       return this.day.items
+    },
+    sortedByOrderItems: function () {
+      return this.items.sort((a, b) => a.order - b.order)
     },
     itemCount: function () {
       return this.items.length
@@ -108,10 +111,10 @@ export default {
       this.$refs[target][0].$el.focus()
     },
     'currentItem.text': function (val) {
-      console.log('currentItem.text : ', val)
+      this.updateItemText()
     },
     'currentItem.note.body': function (val) {
-      console.log('currentItem.note.body : ', val)
+      this.updateNoteText()
     }
   },
   methods: {
@@ -241,8 +244,7 @@ export default {
         input.$el.focus()
       })
     },
-    updateNoteText: _debounce(function (item) {
-      console.log('changed', item)
+    updateNoteText: _debounce(function () {
       const targetId = this.currentItem._id
       this.$db.get(targetId).then(doc => {
         doc.note = this.currentItem.note

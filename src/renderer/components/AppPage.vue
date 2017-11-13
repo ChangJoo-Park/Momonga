@@ -132,6 +132,7 @@ export default {
         text: text,
         isDone: false,
         date: day.date,
+        order: -1,
         createdAt: new Date(),
         updatedAt: new Date()
       }
@@ -146,6 +147,10 @@ export default {
             console.log('중간에 만듬')
             this.currentWeekDays[targetIndex].items.splice(itemIndex + 1, 0, newItem)
           }
+          this.currentWeekDays[targetIndex].items.forEach((item, index) => {
+            item.order = index
+          })
+          this.updateItemOrder(this.currentWeekDays[targetIndex])
         })
         .catch(error => {
           console.log(error)
@@ -160,6 +165,18 @@ export default {
       this.$db.get(item._id).then(doc => {
         this.currentWeekDays[dayIndex].items.splice(itemIndex, 1)
         return this.$db.remove(doc)
+      })
+        .then(() => {
+          this.updateItemOrder(this.currentWeekDays[dayIndex])
+        })
+    },
+    updateItemOrder: function (day) {
+      day.items.forEach((item, index) => {
+        this.$db.get(item._id).then(doc => {
+          console.log(doc)
+          doc.order = index
+          this.$db.put(doc)
+        })
       })
     },
     updateItemText: function (day, item, text = '') {
