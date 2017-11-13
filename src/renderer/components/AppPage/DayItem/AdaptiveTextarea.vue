@@ -59,5 +59,8 @@ export default {
 </script>
 
 <style>
-
+.textarea {
+  overflow: hidden;
+  resize: none;
+}
 </style>

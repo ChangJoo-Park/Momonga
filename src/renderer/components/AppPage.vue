@@ -1,25 +1,28 @@
 <template>
   <div id="wrapper">
     <nav-bar
+      class="navbar"
       :currentWeek="currentWeek"
       @goLastWeek="moveLastWeek"
       @goNextWeek="moveNextWeek"
     ></nav-bar>
-    <main>
-      <transition name="list" tag="div" mode="out-in" appear>
-        <day-list :key="today">
-          <day-item
-            v-for="day in currentWeekDays"
-            :day="day"
-            :key="day.number"
-            @addItem="addItemToDay"
-            @removeItem="removeItem"
-            @updateItemText="updateItemText"
-            @toggleDone="doneItem"
-          ></day-item>
-        </day-list>
-      </transition>
-    </main>
+    <div class="main-wrapper">
+      <main id="main">
+        <transition name="list" tag="div" mode="out-in" appear>
+          <day-list :key="today">
+            <day-item
+              v-for="day in currentWeekDays"
+              :day="day"
+              :key="day.number"
+              @addItem="addItemToDay"
+              @removeItem="removeItem"
+              @updateItemText="updateItemText"
+              @toggleDone="doneItem"
+            ></day-item>
+          </day-list>
+        </transition>
+      </main>
+    </div>
     <!-- Setting -->
     <!-- Setting Button -->
     <button
@@ -166,7 +169,13 @@ export default {
       if (dayIndex === -1 || itemIndex === -1) {
         return
       }
-      this.currentWeekDays[dayIndex].items[itemIndex].text = text
+      const targetItem = this.currentWeekDays[dayIndex].items[itemIndex]
+      this.$db.get(targetItem._id).then((docs) => {
+        docs.text = text
+        this.$db.put(docs).then(_ => {
+          this.currentWeekDays[dayIndex].items[itemIndex].text = text
+        })
+      })
     },
     doneItem: function (day, item) {
       const dayIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
@@ -185,6 +194,9 @@ export default {
         }
       }
       return targetIndex
+    },
+    goToScrollTop: function () {
+      this.$el.scrollTop = 0
     }
   }
 }
@@ -231,5 +243,10 @@ export default {
 
 #wrapper {
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.navbar {
+  flex: 0;
 }
 </style>
