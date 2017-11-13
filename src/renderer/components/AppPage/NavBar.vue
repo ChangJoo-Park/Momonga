@@ -1,12 +1,12 @@
 <template>
   <div class="nav-wrapper">
     <div class="nav-item nav-item-left" @click="$emit('goLastWeek')">
-      <span class="nav-item-arrow"><</span>
+      <i class="la la-chevron-left nav-item-arrow"></i>
       <span class="nav-item-text active">{{ lastWeek }}</span>
     </div>
     <div class="nav-item nav-item-right" @click="$emit('goNextWeek')">
       <span class="nav-item-text">{{ thisWeek }}</span>
-      <span class="nav-item-arrow">></span>
+      <i class="la la-chevron-right nav-item-arrow"></i>
     </div>
   </div>
 </template>
@@ -46,6 +46,8 @@ export default {
   align-items: center;
   min-height: 30px;
   margin-bottom: 10px;
+  line-height: 30px;
+  font-size: 20px;
 }
 .nav-item-text, .nav-item-arrow {
   font-size: 20px;
