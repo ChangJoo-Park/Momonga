@@ -14,10 +14,6 @@
               v-for="day in currentWeekDays"
               :day="day"
               :key="day.number"
-              @addItem="addItemToDay"
-              @removeItem="removeItem"
-              @updateItemText="updateItemText"
-              @toggleDone="doneItem"
             ></day-item>
           </day-list>
         </transition>
@@ -38,7 +34,6 @@
 </template>
 
 <script>
-import uuid from 'uuid/v4'
 import NavBar from './AppPage/NavBar'
 import SettingModal from './AppPage/SettingModal'
 import DayList from './AppPage/DayList'
@@ -120,97 +115,6 @@ export default {
       this.getCurrentWeekDays().then(result => {
         this.currentWeekDays = result
       })
-    },
-    addItemToDay: function (day, itemIndex = -1, text = '') {
-      console.log('아이템 추가')
-      const targetIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
-      if (targetIndex === -1) {
-        return
-      }
-      const newItem = {
-        _id: uuid(),
-        text: text,
-        isDone: false,
-        date: day.date,
-        order: -1,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-      console.log('newItem => ', newItem)
-      this.$db.put(newItem)
-        .then(response => {
-          console.log(response)
-          if (itemIndex === -1) {
-            console.log('새로 만듬')
-            this.currentWeekDays[targetIndex].items.push(newItem)
-          } else {
-            console.log('중간에 만듬')
-            this.currentWeekDays[targetIndex].items.splice(itemIndex + 1, 0, newItem)
-          }
-          this.currentWeekDays[targetIndex].items.forEach((item, index) => {
-            item.order = index
-          })
-          this.updateItemOrder(this.currentWeekDays[targetIndex])
-        })
-        .catch(error => {
-          console.log(error)
-        })
-    },
-    removeItem: function (day, item) {
-      const dayIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
-      const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, '_id')
-      if (dayIndex === -1 || itemIndex === -1) {
-        return
-      }
-      this.$db.get(item._id).then(doc => {
-        this.currentWeekDays[dayIndex].items.splice(itemIndex, 1)
-        return this.$db.remove(doc)
-      })
-        .then(() => {
-          this.updateItemOrder(this.currentWeekDays[dayIndex])
-        })
-    },
-    updateItemOrder: function (day) {
-      day.items.forEach((item, index) => {
-        this.$db.get(item._id).then(doc => {
-          console.log(doc)
-          doc.order = index
-          this.$db.put(doc)
-        })
-      })
-    },
-    updateItemText: function (day, item, text = '') {
-      console.log('update item text')
-      const dayIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
-      const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, '_id')
-      if (dayIndex === -1 || itemIndex === -1) {
-        return
-      }
-      const targetItem = this.currentWeekDays[dayIndex].items[itemIndex]
-      this.$db.get(targetItem._id).then((docs) => {
-        docs.text = text
-        this.$db.put(docs).then(_ => {
-          this.currentWeekDays[dayIndex].items[itemIndex].text = text
-        })
-      })
-    },
-    doneItem: function (day, item) {
-      const dayIndex = this.findItemByProperty(this.currentWeekDays, day, 'id')
-      const itemIndex = this.findItemByProperty(this.currentWeekDays[dayIndex].items, item, '_id')
-      if (dayIndex === -1 || itemIndex === -1) {
-        return
-      }
-      this.currentWeekDays[dayIndex].items[itemIndex].isDone = !this.currentWeekDays[dayIndex].items[itemIndex].isDone
-    },
-    findItemByProperty: function (collection, item, property) {
-      var targetIndex = -1
-      for (var index = 0; index < collection.length; index++) {
-        if (collection[index][property] === item[property]) {
-          targetIndex = index
-          break
-        }
-      }
-      return targetIndex
     },
     goToScrollTop: function () {
       this.$el.scrollTop = 0
