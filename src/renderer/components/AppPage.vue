@@ -21,15 +21,14 @@
     </div>
     <!-- Setting -->
     <!-- Setting Button -->
-    <button
-      class="button button-setting position-fixed bottom-right"
-      @click="isSettingOpened = true"
-    >O</button>
+    <i class="la la-sliders la-2x position-fixed bottom-right setting-button button-icon" @click="isSettingOpened = true"></i>
     <!-- Setting Modal -->
-    <setting-modal
-      v-if="isSettingOpened"
-      @close="isSettingOpened = false"
-    ></setting-modal>
+    <transition name="modal">
+      <setting-modal
+        v-if="isSettingOpened"
+        @close="isSettingOpened = false"
+      ></setting-modal>
+    </transition>
   </div>
 </template>
 
@@ -162,6 +161,14 @@ export default {
   transform: translateX(-50px);
 }
 
+.modal-enter-active, .modal-leave-active {
+  transition: all .4s;
+}
+
+.modal-enter, .modal-leave-to {
+  transform: translateY(100%);
+}
+
 #wrapper {
   overflow: hidden;
   display: flex;
@@ -174,4 +181,17 @@ export default {
   box-sizing: border-box;
   padding: 5px;
 }
+.setting-button {
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.button-icon {
+  color: #4fc08d;
+  cursor: pointer;
+}
+.button-icon:hover {
+  color: #000;
+}
+
 </style>
