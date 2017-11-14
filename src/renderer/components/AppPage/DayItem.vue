@@ -19,7 +19,6 @@
             v-model="item.text"
             :min-height="15"
             :rows="1"
-            @blur.native="updateItemText(item)"
             @focus.native="changeCurrentItem(item)"
             @keydown.up.native.prevent="moveItemUp(true, item)"
             @keydown.down.native.prevent="moveItemUp(false, item)"
@@ -49,6 +48,8 @@
 import uuid from 'uuid/v4'
 import { debounce as _debounce } from 'lodash'
 import AdaptiveTextarea from './DayItem/AdaptiveTextarea'
+import util from '../../util'
+import db from '../../db'
 
 export default {
   props: {
@@ -101,15 +102,6 @@ export default {
     }
   },
   watch: {
-    currentItem: function (val) {
-      if (val === undefined || val === null) {
-        document.activeElement.blur()
-        return
-      }
-      const target = `inputs-${this.currentItem._id}`
-      console.log(this.$refs)
-      this.$refs[target][0].$el.focus()
-    },
     'currentItem.text': function (val) {
       this.updateItemText()
     },
@@ -118,14 +110,63 @@ export default {
     }
   },
   methods: {
+    focusCurrentItem: function () {
+      this.$nextTick(() => {
+        const target = `inputs-${this.currentItem._id}`
+        this.$refs[target][0].$el.focus()
+      })
+    },
     changeCurrentItem: function (item) {
-      console.log('item => ', item)
-      console.log('change current Item')
       this.currentItem = item
     },
     addNewItemWithEmpty: function () {
-      this.$emit('addItem', this.day, -1, '')
+      const newItem = this.getNewItemTemplate('', this.itemCount)
+      db.post(this.$db, newItem)
+        .then(response => {
+          this.day.items.push(newItem)
+          this.currentItem = newItem
+          this.updateItemOrder()
+          this.focusCurrentItem()
+        })
     },
+    /**
+     * 아이템이 선택된 경우만 작동함
+     */
+    addNewItem: function () {
+      const caretPosition = util.getCaretPosition()
+      const isCaretPositionMiddle = caretPosition !== this.currentItemTextLength
+
+      let tailText = ''
+      let remainText = this.currentItem.text
+
+      if (isCaretPositionMiddle) {
+        remainText = this.currentItem.text.slice(0, caretPosition)
+        tailText = this.currentItem.text.slice(caretPosition, this.currentItemTextLength)
+      }
+      const item = Object.assign({}, this.currentItem)
+      const currentItemIndex = this.currentItemIndex
+      const nextItemIndex = currentItemIndex + 1
+
+      db.update(this.$db, item, { text: remainText }).then(_ => {
+        this.currentItem.text = remainText
+        this.currentItem = null
+        const newItem = this.getNewItemTemplate(tailText, nextItemIndex)
+        db.post(this.$db, newItem).then(_ => {
+          this.day.items.splice(nextItemIndex, 0, newItem)
+          this.updateItemOrder()
+          this.currentItem = newItem
+          this.focusCurrentItem()
+        })
+      })
+    },
+    updateItemOrder: function () {
+      this.day.items.forEach((item, index) => {
+        db.update(this.$db, item, { order: index }).then(_ => {
+          item.order = index
+        })
+      })
+    },
+
     moveItemUp: function (isUp, item) {
       const isFirst = (isUp && this.currentItemIndex === 0)
       const isLast = (!isUp && this.currentItemIndex === this.itemCount - 1)
@@ -137,16 +178,17 @@ export default {
       }
       const nextIndex = isUp ? this.currentItemIndex - 1 : this.currentItemIndex + 1
       this.currentItem = this.items[nextIndex]
+      this.focusCurrentItem()
     },
     /**
      * 전달받은 아이템의 완료 상태를 토글
      */
     toggleDoneItem: function (item) {
-      const day = Object.assign({}, this.day)
-      this.$emit('toggleDone', day, item)
-      this.$db.get(this.currentItem._id).then(doc => {
-        doc.isDone = this.currentItem.isDone
-        this.$db.put(doc)
+      const nextDoneState = !item.isDone
+      db.update(this.$db, item, {
+        isDone: nextDoneState
+      }).then(_ => {
+        item.isDone = nextDoneState
       })
     },
     /**
@@ -154,27 +196,27 @@ export default {
      */
     removeItem: function () {
       const isEmptyLength = this.iscurrentItemTextEmpty
-      const isZeroCaret = this.getCaretPosition() === 0
+      const isZeroCaret = util.getCaretPosition() === 0
       if (isEmptyLength && isZeroCaret) {
         const nextIndex = this.findNextItemIndex(this.currentItem)
-        this.$emit('removeItem', this.day, this.currentItem)
-        if (nextIndex === -1) {
-          this.currentItem = null
-        } else {
-          this.currentItem = this.items[nextIndex]
-        }
+        db.destroy(this.$db, this.currentItem).then(result => {
+          this.day.items.splice(this.currentItemIndex, 1)
+          if (nextIndex === -1) {
+            this.currentItem = null
+          } else {
+            this.currentItem = this.items[nextIndex]
+            this.focusCurrentItem()
+          }
+          this.updateItemOrder()
+        })
       }
     },
     removeNote: function () {
-      const isCaretPositionZeroAndEmptyText = this.getCaretPosition() === 0 && this.currentItem.note.body.length === 0
+      const isCaretPositionZeroAndEmptyText = util.getCaretPosition() === 0 && this.currentItem.note.body.length === 0
       if (isCaretPositionZeroAndEmptyText) {
-        this.$set(this.currentItem, 'note', undefined)
-        const target = `inputs-${this.currentItem._id}`
-        this.$refs[target][0].$el.focus()
-        const targetId = this.currentItem._id
-        this.$db.get(targetId).then(doc => {
-          doc.note = undefined
-          this.$db.put(doc)
+        db.update(this.$db, this.currentItem, { note: undefined }).then(_ => {
+          this.$set(this.currentItem, 'note', undefined)
+          this.focusCurrentItem()
         })
       }
     },
@@ -193,25 +235,12 @@ export default {
       }
       const isMoreThanOne = this.itemCount > 1
       if (isFirstItem && isMoreThanOne) {
-        console.log('첫번쨰 아이템이면서 한개 이상 있는 경우')
         return this.currentItemIndex
       } else if (isLastItem && isMoreThanOne) {
-        console.log('마지막이면서 한개 이상 있는 경우')
         return this.itemCount - 2
       } else {
         return this.currentItemIndex - 1
       }
-    },
-    /**
-     * 현재 선택된 엘리먼트의 캐럿 위치를 찾는다.
-     */
-    getCaretPosition: function () {
-      const el = document.activeElement
-      if (el.nodeName === 'BODY') {
-        return
-      }
-      const val = el.value
-      return val.slice(0, el.selectionStart).length
     },
     handleEnter: function () {
       if (event.shiftKey) {
@@ -252,34 +281,29 @@ export default {
         this.$db.put(doc)
       })
     }, 100),
-    /**
-     * 아이템이 선택된 경우만 작동함
-     */
-    addNewItem: function () {
-      console.log('add new item')
-      // Message
-      const caretPosition = this.getCaretPosition()
-      const isCaretPositionMiddle = caretPosition !== this.currentItemTextLength
 
-      let tailText = ''
-      let remainText = this.currentItem.text
-
-      if (isCaretPositionMiddle) {
-        remainText = this.currentItem.text.slice(0, caretPosition)
-        tailText = this.currentItem.text.slice(caretPosition, this.currentItemTextLength)
-      }
-      this.$emit('updateItemText', this.day, this.currentItem, remainText)
-      const day = Object.assign({}, this.day)
-      this.$emit('addItem', day, this.currentItemIndex, tailText)
-    },
     updateItemText: _debounce(function () {
+      if (this.currentItem === null) {
+        return
+      }
       const targetId = this.currentItem._id
       this.$db.get(targetId).then(doc => {
         doc.text = this.currentItem.text
         doc.updatedAt = new Date()
         this.$db.put(doc)
       })
-    }, 100)
+    }, 100),
+    getNewItemTemplate: function (text = '', order = -1) {
+      return {
+        _id: uuid(),
+        text: text,
+        isDone: false,
+        date: this.day.date,
+        order: order,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    }
   }
 }
 </script>
