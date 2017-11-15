@@ -6,10 +6,20 @@
 
 <script>
   export default {
-    name: 'parrots'
+    name: 'momonga'
   }
 </script>
 
 <style>
-  /* CSS */
+@import url('./assets/line-awesome/css/line-awesome-font-awesome.min.css');
+@import url('./assets/line-awesome/css/line-awesome.css');
+
+/* CSS */
+* {
+  font-family: sans-serif;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+}
 </style>

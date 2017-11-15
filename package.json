@@ -1,9 +1,9 @@
 {
-  "name": "parrots",
-  "version": "0.0.0",
+  "name": "momonga",
+  "version": "0.0.1",
   "author": "ChangJoo Park <pcjpcj2@gmail.com>",
   "description": "An electron-vue project",
-  "license": null,
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
@@ -22,8 +22,8 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "parrots",
-    "appId": "org.simulatedgreg.electron-vue",
+    "productName": "Momonga",
+    "appId": "org.momonga.app",
     "directories": {
       "output": "build"
     },
@@ -56,10 +56,17 @@
     }
   },
   "dependencies": {
-    "vue": "^2.3.3",
+    "@hoodie/store-client": "^8.2.0",
     "axios": "^0.16.1",
+    "date-fns": "^1.29.0",
+    "lodash": "^4.17.4",
+    "pouchdb-browser": "^6.3.4",
+    "pouchdb-find": "^6.3.4",
+    "uuid": "^3.1.0",
+    "vue": "^2.3.3",
     "vue-electron": "^1.0.6",
     "vue-router": "^2.5.3",
+    "vue-textarea-autosize": "^1.0.3",
     "vuex": "^2.3.1"
   },
   "devDependencies": {
