@@ -1,6 +1,6 @@
 {
   "name": "momonga",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "ChangJoo Park <pcjpcj2@gmail.com>",
   "description": "An electron-vue project",
   "license": "MIT",
@@ -19,7 +19,8 @@
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "test": "npm run unit && npm run e2e",
     "unit": "karma start test/unit/karma.conf.js",
-    "postinstall": "npm run lint:fix"
+    "postinstall": "npm run lint:fix",
+    "publish": "build --mac --win -p always"
   },
   "build": {
     "productName": "Momonga",
@@ -30,6 +31,11 @@
     "files": [
       "dist/electron/**/*"
     ],
+    "publish": [{
+      "provider": "github",
+      "owner": "ChangJoo-Park",
+      "repo": "Momonga"
+    }],
     "dmg": {
       "contents": [
         {
@@ -59,6 +65,7 @@
     "@hoodie/store-client": "^8.2.0",
     "axios": "^0.16.1",
     "date-fns": "^1.29.0",
+    "electron-updater": "^2.16.1",
     "lodash": "^4.17.4",
     "pouchdb-browser": "^6.3.4",
     "pouchdb-find": "^6.3.4",
