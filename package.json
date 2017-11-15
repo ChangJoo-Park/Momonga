@@ -23,7 +23,7 @@
   },
   "build": {
     "productName": "Momonga",
-    "appId": "org.simulatedgreg.electron-vue",
+    "appId": "org.momonga.app",
     "directories": {
       "output": "build"
     },
