@@ -1,6 +1,8 @@
-# momonga
+# Momonga
 
-> An electron-vue project
+> TextEditor - like Weekly Planner (inspired by coypu)
+
+![Momonga](build/icons/256x256.png?raw=true)
 
 #### Build Setup
 
