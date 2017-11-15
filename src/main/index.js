@@ -55,7 +55,6 @@ app.on('activate', () => {
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
  */
 
-
 autoUpdater.on('update-downloaded', () => {
   autoUpdater.quitAndInstall()
 })
