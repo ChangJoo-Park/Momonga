@@ -1,8 +1,8 @@
 {
-  "name": "momonga",
+  "name": "Momonga",
   "version": "0.0.3",
   "author": "ChangJoo Park <pcjpcj2@gmail.com>",
-  "description": "An electron-vue project",
+  "description": "TextEditor-like Weekly Planner",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
@@ -34,7 +34,8 @@
     "publish": [{
       "provider": "github",
       "owner": "ChangJoo-Park",
-      "repo": "Momonga"
+      "repo": "Momonga",
+      "vPrefixedTagName": false
     }],
     "dmg": {
       "contents": [

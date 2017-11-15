@@ -5,9 +5,31 @@
 </template>
 
 <script>
-  export default {
-    name: 'momonga'
+export default {
+  name: 'momonga',
+  mounted: function () {
+    this.$electron.ipcRenderer.on('ping', (event, message) => {
+      window.alert('hello')
+      console.log(message)
+    })
+    this.$electron.ipcRenderer.on('available', (event, message) => {
+      window.alert('available')
+      console.log(message)
+    })
+    this.$electron.ipcRenderer.on('failed', (event, message) => {
+      window.alert('failed')
+      console.log(message)
+    })
+    this.$electron.ipcRenderer.on('downloaded', (event, message) => {
+      window.alert('downloaded')
+      console.log(message)
+    })
+    this.$electron.ipcRenderer.on('error', (event, message) => {
+      window.alert('error')
+      console.log(message)
+    })
   }
+}
 </script>
 
 <style>

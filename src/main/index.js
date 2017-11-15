@@ -28,12 +28,19 @@ function createWindow () {
 
   mainWindow.loadURL(winURL)
 
+  mainWindow.webContents.openDevTools()
+
   mainWindow.on('closed', () => {
     mainWindow = null
   })
 }
 
-app.on('ready', createWindow)
+app.on('ready', () => {
+  createWindow()
+  if (process.env.NODE_ENV === 'production') {
+    autoUpdater.checkForUpdates()
+  }
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -56,9 +63,18 @@ app.on('activate', () => {
  */
 
 autoUpdater.on('update-downloaded', () => {
+  mainWindow.webContents.send('downloaded', 'whoooooooh!')
   autoUpdater.quitAndInstall()
 })
 
-app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
+autoUpdater.on('update-not-available', (error) => {
+  mainWindow.webContents.send('failed', error)
+})
+
+autoUpdater.on('update-available', () => {
+  mainWindow.webContents.send('available', 'whoooooooh!')
+})
+
+autoUpdater.on('error', (error) => {
+  mainWindow.webContents.send('error', error)
 })
