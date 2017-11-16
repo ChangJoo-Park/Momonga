@@ -68,6 +68,7 @@
     "@hoodie/store-client": "^8.2.0",
     "axios": "^0.16.1",
     "date-fns": "^1.29.0",
+    "electron-log": "^2.2.11",
     "electron-updater": "^2.16.1",
     "lodash": "^4.17.4",
     "pouchdb-browser": "^6.3.4",
