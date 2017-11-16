@@ -31,12 +31,14 @@
     "files": [
       "dist/electron/**/*"
     ],
-    "publish": [{
-      "provider": "github",
-      "owner": "ChangJoo-Park",
-      "repo": "Momonga",
-      "vPrefixedTagName": false
-    }],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "ChangJoo-Park",
+        "repo": "Momonga",
+        "vPrefixedTagName": false
+      }
+    ],
     "dmg": {
       "contents": [
         {
