@@ -1,7 +1,9 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
+autoUpdater.logger = require('electron-log')
+autoUpdater.logger.transports.file.level = 'info'
 
 /**
  * Set `__static` path to static files in production
@@ -27,8 +29,6 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL)
-
-  mainWindow.webContents.openDevTools()
 
   mainWindow.on('closed', () => {
     mainWindow = null
@@ -63,18 +63,25 @@ app.on('activate', () => {
  */
 
 autoUpdater.on('update-downloaded', () => {
-  mainWindow.webContents.send('downloaded', 'whoooooooh!')
-  autoUpdater.quitAndInstall()
+  mainWindow.webContents.send('downloaded', '')
 })
 
 autoUpdater.on('update-not-available', (error) => {
   mainWindow.webContents.send('failed', error)
 })
 
-autoUpdater.on('update-available', () => {
-  mainWindow.webContents.send('available', 'whoooooooh!')
+autoUpdater.on('update-available', (info) => {
+  mainWindow.webContents.send('available', info)
+})
+
+autoUpdater.on('download-progress', (progress) => {
+  mainWindow.webContents.send('download-progress', progress)
 })
 
 autoUpdater.on('error', (error) => {
   mainWindow.webContents.send('error', error)
+})
+
+ipcMain.on('quit-and-install', (event, arg) => {
+  autoUpdater.quitAndInstall()
 })
