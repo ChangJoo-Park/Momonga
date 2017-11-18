@@ -26,7 +26,7 @@
     <transition name="modal">
       <setting-modal
         v-if="isSettingOpened"
-        @close="isSettingOpened = false"
+        @close="updateSettings"
       ></setting-modal>
     </transition>
   </div>
@@ -38,7 +38,7 @@ import SettingModal from './AppPage/SettingModal'
 import DayList from './AppPage/DayList'
 import DayItem from './AppPage/DayItem'
 import { getISOYear, getISOWeek, startOfWeek, endOfWeek, addWeeks, subWeeks, format, addDays } from 'date-fns'
-import koLocale from 'date-fns/locale/ko'
+import util from '../util'
 
 export default {
   name: 'app-page',
@@ -80,13 +80,14 @@ export default {
         }
         Promise.all(promises).then(results => {
           let startDay = this.currentWeek.start
+          const locale = util.getCurrentLocaleFile()
           results.forEach(day => {
             const id = Math.floor(Math.random() * 99999)
             const docs = day.docs
             weekDays.push({
               id: id,
-              text: format(startDay, 'dddd', { locale: koLocale }),
-              number: format(startDay, 'Do', { locale: koLocale }),
+              text: format(startDay, 'dddd', { locale }),
+              number: format(startDay, 'Do', { locale }),
               date: format(startDay, 'YYYY-MM-DD'),
               items: docs
             })
@@ -117,6 +118,14 @@ export default {
     },
     goToScrollTop: function () {
       this.$el.scrollTop = 0
+    },
+    updateSettings: function (changed) {
+      if (changed) {
+        this.$electron.ipcRenderer.send('refresh', '')
+        // this.isSettingOpened = false
+      } else {
+        this.isSettingOpened = false
+      }
     }
   }
 }

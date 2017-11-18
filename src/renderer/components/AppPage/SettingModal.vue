@@ -1,12 +1,43 @@
 <template>
   <div class="modal full-modal background-white">
-    <i class="la la-2x la-close position-fixed top-right modal-closer button-icon" @click="$emit('close')"></i>
+    <!-- Closer -->
+    <i class="la la-2x la-close position-fixed top-right modal-closer button-icon" @click="handleClose"></i>
+    <select v-model="selectedLocale">
+      <option v-for="locale in locales" :value="locale.value" :key="locale.value">
+        {{locale.text}}
+      </option>
+    </select>
   </div>
 </template>
 
 <script>
-export default {
+import util from '../../util'
 
+export default {
+  mounted: function () {
+    const currentLocale = util.getCurrentLocale()
+    const optionIndex = this.locales.findIndex(l => l.value === currentLocale)
+    this.selectedLocale = this.locales[optionIndex].value
+  },
+  data: function () {
+    return {
+      selectedLocale: '',
+      locales: [
+        { text: 'English', value: 'en' },
+        { text: '한국어', value: 'ko' },
+        { text: 'Spanish', value: 'es' }
+      ]
+    }
+  },
+  methods: {
+    handleClose: function () {
+      let isChanged = util.getCurrentLocale() !== this.selectedLocale
+      if (isChanged) {
+        util.setCurrentlocale(this.selectedLocale)
+      }
+      this.$emit('close', isChanged)
+    }
+  }
 }
 </script>
 
