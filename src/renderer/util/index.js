@@ -8,16 +8,13 @@ const getCaretPosition = () => {
 }
 
 const setCurrentlocale = (locale = 'en') => {
-  const Cookies = require('js-cookie')
-  Cookies.set('locale', locale)
+  window.localStorage.setItem('locale', locale)
 }
 const getCurrentLocale = () => {
-  const Cookies = require('js-cookie')
-  if (!Cookies.get('locale')) {
-    console.log('쿠키가 없음')
+  if (!window.localStorage.getItem('locale')) {
     setCurrentlocale()
   }
-  const locale = Cookies.get('locale')
+  const locale = window.localStorage.getItem('locale')
   let localeFile
 
   switch (locale) {
