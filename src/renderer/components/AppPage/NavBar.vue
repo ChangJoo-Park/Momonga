@@ -13,7 +13,7 @@
 
 <script>
 import { format } from 'date-fns'
-import koLocale from 'date-fns/locale/ko'
+import util from '../../util'
 
 export default {
   props: {
@@ -24,11 +24,11 @@ export default {
   },
   computed: {
     lastWeek: function () {
-      return `${this.currentWeek.year} ${this.currentWeek.week}`
+      return `${this.currentWeek.year} - ${this.currentWeek.week}`
     },
     thisWeek: function () {
       const options = {
-        locale: koLocale
+        locale: util.getCurrentLocaleFile()
       }
       const start = format(this.currentWeek.start, 'D', options)
       const end = format(this.currentWeek.end, 'D', options)

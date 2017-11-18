@@ -85,3 +85,8 @@ autoUpdater.on('error', (error) => {
 ipcMain.on('quit-and-install', (event, arg) => {
   autoUpdater.quitAndInstall()
 })
+
+ipcMain.on('refresh', (event, args) => {
+  console.log('refresh')
+  mainWindow.reload()
+})
