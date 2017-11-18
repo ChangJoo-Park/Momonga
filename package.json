@@ -70,6 +70,7 @@
     "date-fns": "^1.29.0",
     "electron-log": "^2.2.11",
     "electron-updater": "^2.16.1",
+    "js-cookie": "^2.2.0",
     "lodash": "^4.17.4",
     "pouchdb-browser": "^6.3.4",
     "pouchdb-find": "^6.3.4",

@@ -38,7 +38,7 @@ import SettingModal from './AppPage/SettingModal'
 import DayList from './AppPage/DayList'
 import DayItem from './AppPage/DayItem'
 import { getISOYear, getISOWeek, startOfWeek, endOfWeek, addWeeks, subWeeks, format, addDays } from 'date-fns'
-import koLocale from 'date-fns/locale/ko'
+import util from '../util'
 
 export default {
   name: 'app-page',
@@ -50,6 +50,7 @@ export default {
   },
   created: function () {
     this.setCurrentWeek(new Date())
+    console.log(util.getCurrentLocale())
   },
   data: function () {
     return {
@@ -80,13 +81,14 @@ export default {
         }
         Promise.all(promises).then(results => {
           let startDay = this.currentWeek.start
+          const locale = util.getCurrentLocale()
           results.forEach(day => {
             const id = Math.floor(Math.random() * 99999)
             const docs = day.docs
             weekDays.push({
               id: id,
-              text: format(startDay, 'dddd', { locale: koLocale }),
-              number: format(startDay, 'Do', { locale: koLocale }),
+              text: format(startDay, 'dddd', { locale }),
+              number: format(startDay, 'Do', { locale }),
               date: format(startDay, 'YYYY-MM-DD'),
               items: docs
             })
