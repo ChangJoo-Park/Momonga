@@ -26,7 +26,7 @@
     <transition name="modal">
       <setting-modal
         v-if="isSettingOpened"
-        @close="isSettingOpened = false"
+        @close="updateSettings"
       ></setting-modal>
     </transition>
   </div>
@@ -50,7 +50,6 @@ export default {
   },
   created: function () {
     this.setCurrentWeek(new Date())
-    console.log(util.getCurrentLocale())
   },
   data: function () {
     return {
@@ -81,7 +80,7 @@ export default {
         }
         Promise.all(promises).then(results => {
           let startDay = this.currentWeek.start
-          const locale = util.getCurrentLocale()
+          const locale = util.getCurrentLocaleFile()
           results.forEach(day => {
             const id = Math.floor(Math.random() * 99999)
             const docs = day.docs
@@ -119,6 +118,14 @@ export default {
     },
     goToScrollTop: function () {
       this.$el.scrollTop = 0
+    },
+    updateSettings: function (changed) {
+      if (changed) {
+        this.$electron.ipcRenderer.send('refresh', '')
+        // this.isSettingOpened = false
+      } else {
+        this.isSettingOpened = false
+      }
     }
   }
 }
