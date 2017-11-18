@@ -28,7 +28,7 @@ export default {
     },
     thisWeek: function () {
       const options = {
-        locale: util.getCurrentLocale()
+        locale: util.getCurrentLocaleFile()
       }
       const start = format(this.currentWeek.start, 'D', options)
       const end = format(this.currentWeek.end, 'D', options)

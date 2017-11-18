@@ -15,6 +15,11 @@ const getCurrentLocale = () => {
     setCurrentlocale()
   }
   const locale = window.localStorage.getItem('locale')
+  return locale
+}
+
+const getCurrentLocaleFile = () => {
+  const locale = getCurrentLocale()
   let localeFile
 
   switch (locale) {
@@ -36,5 +41,6 @@ const getCurrentLocale = () => {
 export default {
   getCaretPosition,
   setCurrentlocale,
-  getCurrentLocale
+  getCurrentLocale,
+  getCurrentLocaleFile
 }
