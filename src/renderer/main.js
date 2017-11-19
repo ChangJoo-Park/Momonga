@@ -10,6 +10,7 @@ import App from './App'
 import router from './router'
 import store from './store'
 import './assets/main.css'
+import './assets/font.css'
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios

@@ -66,12 +66,9 @@ export default {
 
 /* CSS */
 * {
-  font-family: sans-serif;
+  font-family: 'Nanum Square', sans-serif;
 }
-html, body {
-  margin: 0;
-  padding: 0;
-}
+
 .progress-wrapper {
   position: fixed;
   bottom: 0;

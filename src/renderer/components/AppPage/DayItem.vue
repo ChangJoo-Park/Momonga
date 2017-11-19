@@ -325,7 +325,7 @@ export default {
     margin: 0;
     margin-bottom: 5px;
     font-size: 18px;
-    font-weight: normal;
+    font-weight: 700;
   }
 
   .day-item-checkbox {

@@ -50,6 +50,7 @@ export default {
   margin-bottom: 10px;
   line-height: 30px;
   font-size: 20px;
+  font-weight: 900;
   background-color: #fff;
   padding: 5px;
 
