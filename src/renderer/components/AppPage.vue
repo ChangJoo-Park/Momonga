@@ -171,7 +171,7 @@ export default {
 }
 
 .modal-enter-active, .modal-leave-active {
-  transition: all .4s;
+  transition: all .2s;
 }
 
 .modal-enter, .modal-leave-to {
