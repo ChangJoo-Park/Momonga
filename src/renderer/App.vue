@@ -62,7 +62,7 @@ export default {
 
 <style lang="scss">
 @import url('./assets/line-awesome/css/line-awesome-font-awesome.min.css');
-@import url('./assets/line-awesome/css/line-awesome.css');
+@import url('./assets/line-awesome/css/line-awesome.min.css');
 
 /* CSS */
 * {
