@@ -25,6 +25,8 @@ export default {
       locales: [
         { text: 'English', value: 'en' },
         { text: '한국어', value: 'ko' },
+        { text: '日本語', value: 'ja' },
+        { text: '简体中文', value: 'zh_cn' },
         { text: 'Spanish', value: 'es' }
       ]
     }

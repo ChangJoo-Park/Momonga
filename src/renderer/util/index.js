@@ -32,6 +32,12 @@ const getCurrentLocaleFile = () => {
     case 'es':
       localeFile = require('date-fns/locale/es')
       break
+    case 'ja':
+      localeFile = require('date-fns/locale/ja')
+      break
+    case 'zh_cn':
+      localeFile = require('date-fns/locale/zh_cn')
+      break
     default:
       localeFile = require('date-fns/locale/en')
       break
