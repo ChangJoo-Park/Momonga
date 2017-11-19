@@ -309,64 +309,65 @@ export default {
 </script>
 
 <style lang="scss">
-/* Day List */
-.day-item-title {
-  display: inline-block;
-  cursor: pointer;
-  margin: 0;
-  margin-bottom: 5px;
-  font-size: 18px;
-  font-weight: normal;
-}
+.day-list-item {
+  &.today .day-item-title {
+    border-bottom: 1px solid black;
+  }
 
-.day-item-checkbox {
-  user-select: none;
-  cursor: pointer;
-  font-size: 30px;
-  color: #4fc08d;
-}
+  & .done .day-item-input,
+  & .done .day-item-note {
+    text-decoration:line-through;
+  }
 
-.day-list-item.today .day-item-title {
-  border-bottom: 1px solid black;
-}
+  .day-item-title {
+    display: inline-block;
+    cursor: pointer;
+    margin: 0;
+    margin-bottom: 5px;
+    font-size: 18px;
+    font-weight: normal;
+  }
 
-.day-list-item .done .day-item-input,
-.day-list-item .done .day-item-note {
-  text-decoration:line-through;
-}
+  .day-item-checkbox {
+    user-select: none;
+    cursor: pointer;
+    font-size: 30px;
+    color: #4fc08d;
+  }
 
-.dummy-text-input {
-  outline: none;
-  border: none;
-  width: 100%;
-}
+  .dummy-text-input {
+    outline: none;
+    border: none;
+    width: 100%;
+  }
 
-.day-item {
-  display: flex;
-  align-items: center;
-  padding-top: 2px;
-  padding-bottom: 2px;
-}
-.day-item-input {
-  font-size: 15px;
-  width: 100%;
-  margin: 0;
-  border: none;
-  outline: none;
-  resize: none;
-}
+  .day-item {
+    display: flex;
+    align-items: center;
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+  .day-item-input {
+    font-size: 15px;
+    width: 100%;
+    margin: 0;
+    border: none;
+    outline: none;
+    resize: none;
+  }
 
-.day-item-note-wrapper {
-  margin-bottom: 2px;
-}
+  .day-item-note-wrapper {
+    margin-bottom: 2px;
+  }
 
-.day-item-note {
-  color: #4fc08d;
-  font-size: 12px;
-  width: 100%;
-  border: none;
-  outline: none;
-  resize: none;
-  box-sizing: border-box;
+  .day-item-note {
+    color: #4fc08d;
+    font-size: 12px;
+    width: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+    box-sizing: border-box;
+  }
 }
 </style>

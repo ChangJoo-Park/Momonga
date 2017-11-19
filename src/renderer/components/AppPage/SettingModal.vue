@@ -50,9 +50,9 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-}
-.modal-closer {
-  margin-top: 5px;
-  margin-right: 5px;
+  .modal-closer {
+    margin-top: 5px;
+    margin-right: 5px;
+  }
 }
 </style>

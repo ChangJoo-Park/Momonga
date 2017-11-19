@@ -52,20 +52,21 @@ export default {
   font-size: 20px;
   background-color: #fff;
   padding: 5px;
-}
-.nav-item-text, .nav-item-arrow {
-  font-size: 20px;
-}
 
-.nav-item {
-  user-select: none;
-  cursor: pointer;
-}
+  .nav-item-text, .nav-item-arrow {
+    font-size: 20px;
+  }
 
-.nav-item-text.active {
-  color: #4fc08d;
-}
-.nav-item-arrow {
-  color: #4fc08d;
+  .nav-item {
+    user-select: none;
+    cursor: pointer;
+  }
+
+  .nav-item-text.active {
+    color: #4fc08d;
+  }
+  .nav-item-arrow {
+    color: #4fc08d;
+  }
 }
 </style>
