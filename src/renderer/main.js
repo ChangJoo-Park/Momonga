@@ -1,4 +1,6 @@
 import Vue from 'vue'
+import VueSlimScroll from 'vue-slimscroll'
+
 import axios from 'axios'
 import PouchDB from 'pouchdb-browser'
 import PouchDBFind from 'pouchdb-find'
@@ -17,6 +19,7 @@ Vue.config.productionTip = false
 PouchDB.plugin(PouchDBFind)
 Vue.prototype.$db = new PouchDB('momonga')
 Vue.use(VueTextareaAutosize)
+Vue.use(VueSlimScroll)
 
 /* eslint-disable no-new */
 new Vue({

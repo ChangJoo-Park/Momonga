@@ -6,7 +6,7 @@
       @goLastWeek="moveLastWeek"
       @goNextWeek="moveNextWeek"
     ></nav-bar>
-    <div class="main-wrapper">
+    <div class="main-wrapper" v-slimscroll="scrollOption">
       <main id="main">
         <transition name="list" tag="div" mode="out-in" appear>
           <day-list :key="today">
@@ -55,7 +55,13 @@ export default {
     return {
       isSettingOpened: false,
       currentWeek: null,
-      currentWeekDays: null
+      currentWeekDays: null,
+      scrollOption: {
+        height: '100%',
+        alwaysVisible: false,
+        disableFadeOut: false,
+        size: 7
+      }
     }
   },
   computed: {
