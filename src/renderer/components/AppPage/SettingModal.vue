@@ -2,11 +2,15 @@
   <div class="modal full-modal background-white">
     <!-- Closer -->
     <i class="la la-2x la-close position-fixed top-right modal-closer button-icon" @click="handleClose"></i>
-    <select v-model="selectedLocale">
-      <option v-for="locale in locales" :value="locale.value" :key="locale.value">
-        {{locale.text}}
-      </option>
-    </select>
+    <div class="settings">
+      <div class="setting-container settings-locale">
+        <select v-model="selectedLocale" class="select">
+          <option v-for="locale in locales" :value="locale.value" :key="locale.value">
+            {{locale.text}}
+          </option>
+        </select>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -50,9 +54,21 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
+  padding-top: 40px;
   .modal-closer {
     margin-top: 5px;
     margin-right: 5px;
+  }
+  .setting-container {
+    padding: 20px;
+  }
+  .select {
+    width: 100%;
+    height: 40px;
+    border: 2px solid #4fc08d;
+    font-weight: bold;
+    outline: none;
+    cursor: pointer;
   }
 }
 </style>
