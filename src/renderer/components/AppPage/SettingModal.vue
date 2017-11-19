@@ -1,10 +1,10 @@
 <template>
   <div class="modal full-modal background-white">
     <!-- Closer -->
-    <i class="la la-2x la-close position-fixed top-right modal-closer button-icon" @click="handleClose"></i>
+    <i class="la la-2x la-close position-fixed top-right modal-closer button-icon" @click="handleClose" lang="en"></i>
     <div class="settings">
       <div class="setting-container settings-locale">
-        <select v-model="selectedLocale" class="select">
+        <select v-model="selectedLocale" class="select" lang="en">
           <option v-for="locale in locales" :value="locale.value" :key="locale.value">
             {{locale.text}}
           </option>

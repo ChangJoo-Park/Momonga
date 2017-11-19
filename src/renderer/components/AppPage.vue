@@ -21,7 +21,7 @@
     </div>
     <!-- Setting -->
     <!-- Setting Button -->
-    <i class="la la-sliders la-2x position-fixed bottom-right setting-button button-icon" @click="isSettingOpened = true"></i>
+    <i class="la la-sliders la-2x position-fixed bottom-right setting-button button-icon" @click="isSettingOpened = true" lang="en"></i>
     <!-- Setting Modal -->
     <transition name="modal">
       <setting-modal

@@ -1,12 +1,12 @@
 <template>
   <div class="nav-wrapper">
     <div class="nav-item nav-item-left" @click="$emit('goLastWeek')">
-      <i class="la la-chevron-left nav-item-arrow"></i>
+      <i class="la la-chevron-left nav-item-arrow" lang="en"></i>
       <span class="nav-item-text active">{{ lastWeek }}</span>
     </div>
     <div class="nav-item nav-item-right" @click="$emit('goNextWeek')">
       <span class="nav-item-text">{{ thisWeek }}</span>
-      <i class="la la-chevron-right nav-item-arrow"></i>
+      <i class="la la-chevron-right nav-item-arrow" lang="en"></i>
     </div>
   </div>
 </template>
@@ -50,7 +50,7 @@ export default {
   margin-bottom: 10px;
   line-height: 30px;
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 700;
   background-color: #fff;
   padding: 5px;
 

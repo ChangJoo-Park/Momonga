@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :lang="lang">
     <router-view></router-view>
     <progress-bar :downloading="isDownloading" :percent="downloadPercentage"></progress-bar>
     <update-notification
@@ -12,7 +12,7 @@
 <script>
 import UpdateNotification from './components/Shared/UpdateNotification'
 import ProgressBar from './components/Shared/ProgressBar'
-
+import util from './util'
 export default {
   name: 'momonga',
   components: {
@@ -21,12 +21,14 @@ export default {
   },
   mounted: function () {
     this.initUpdateRenders()
+    this.lang = util.getCurrentLocale()
   },
   data: function () {
     return {
       isUpdateDownloaded: false,
       isDownloading: false,
-      downloadPercentage: 0
+      downloadPercentage: 0,
+      lang: 'en'
     }
   },
   methods: {
@@ -66,6 +68,9 @@ export default {
 
 /* CSS */
 * {
+  font-family: sans-serif;
+}
+*:lang(ko) {
   font-family: 'Nanum Square', sans-serif;
 }
 
