@@ -39,7 +39,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .nav-wrapper {
   box-sizing: border-box;
   display: flex;

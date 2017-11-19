@@ -60,7 +60,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 @import url('./assets/line-awesome/css/line-awesome-font-awesome.min.css');
 @import url('./assets/line-awesome/css/line-awesome.css');
 

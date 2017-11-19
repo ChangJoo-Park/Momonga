@@ -131,7 +131,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 /* Global Styles */
 .position-fixed {
   position: fixed;

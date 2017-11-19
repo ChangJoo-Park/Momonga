@@ -308,7 +308,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 /* Day List */
 .day-item-title {
   display: inline-block;
